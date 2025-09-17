@@ -19,6 +19,7 @@ class EmailExistsTest extends TestCase
     /**
      * Simule la fonction emailExists EXACTEMENT comme dans ModelUser 
      * en modifiant le nom pour éviter d'appeler la fonction emailExists de ModelUser
+     * Cela garantit que le test reste un test unitaire et pas un test fonctionnel
      */
     private function emailExistsHelper($email, $mockPdo)
     {
