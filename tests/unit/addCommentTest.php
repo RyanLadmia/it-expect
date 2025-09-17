@@ -17,24 +17,21 @@ class AddCommentTest extends TestCase
     }
 
     /**
-     * Simule la fonction addComment sans dépendre de ModelComment
+     * Simule la fonction addComment EXACTEMENT comme dans ModelComment
      */
-    private function addComment($userId, $itemId, $type, $content, $mockPdo, $mockStmt)
+    private function addComment($userId, $itemId, $type, $content, $mockPdo)
     {
-        try {
-            $query = "INSERT INTO comments (user_id, item_id, type, content) VALUES (:user_id, :item_id, :type, :content)";
-            $stmt = $mockPdo->prepare($query);
-            
-            // Simulation des bindParam
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->bindParam(':item_id', $itemId);
-            $stmt->bindParam(':type', $type);
-            $stmt->bindParam(':content', $content);
-            
-            return $stmt->execute();
-        } catch (Exception $e) {
-            return false;
-        }
+        // Reproduction EXACTE de la logique de ModelComment.php
+        $stmt = $mockPdo->prepare("
+            INSERT INTO comments (user_id, item_id, type, content) 
+            VALUES (:user_id, :item_id, :type, :content)
+        ");
+        return $stmt->execute([
+            ':user_id' => $userId,
+            ':item_id' => $itemId,
+            ':type' => $type,
+            ':content' => $content
+        ]);
     }
 
     public function testAddCommentReturnsTrueWhenSuccess()
@@ -48,20 +45,25 @@ class AddCommentTest extends TestCase
         // Configuration du mock PDO
         $this->mockPdo->expects($this->once())
             ->method('prepare')
-            ->with('INSERT INTO comments (user_id, item_id, type, content) VALUES (:user_id, :item_id, :type, :content)')
+            ->with("
+            INSERT INTO comments (user_id, item_id, type, content) 
+            VALUES (:user_id, :item_id, :type, :content)
+        ")
             ->willReturn($this->mockStmt);
         
-        // Configuration du mock Statement
-        $this->mockStmt->expects($this->exactly(4))
-            ->method('bindParam')
-            ->willReturn(true);
-        
+        // Configuration du mock Statement - utilise execute() avec array comme ModelComment
         $this->mockStmt->expects($this->once())
             ->method('execute')
+            ->with([
+                ':user_id' => $userId,
+                ':item_id' => $itemId,
+                ':type' => $type,
+                ':content' => $content
+            ])
             ->willReturn(true);
         
         // Exécution du test
-        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo, $this->mockStmt);
+        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo);
         
         // Vérification
         $this->assertTrue($result, "La fonction devrait retourner true quand l'ajout réussit");
@@ -78,28 +80,33 @@ class AddCommentTest extends TestCase
         // Configuration du mock PDO
         $this->mockPdo->expects($this->once())
             ->method('prepare')
-            ->with('INSERT INTO comments (user_id, item_id, type, content) VALUES (:user_id, :item_id, :type, :content)')
+            ->with("
+            INSERT INTO comments (user_id, item_id, type, content) 
+            VALUES (:user_id, :item_id, :type, :content)
+        ")
             ->willReturn($this->mockStmt);
         
-        // Configuration du mock Statement
-        $this->mockStmt->expects($this->exactly(4))
-            ->method('bindParam')
-            ->willReturn(true);
-        
+        // Configuration du mock Statement - utilise execute() avec array comme ModelComment
         $this->mockStmt->expects($this->once())
             ->method('execute')
+            ->with([
+                ':user_id' => $userId,
+                ':item_id' => $itemId,
+                ':type' => $type,
+                ':content' => $content
+            ])
             ->willReturn(false); // Simulation d'un échec
         
         // Exécution du test
-        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo, $this->mockStmt);
+        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo);
         
         // Vérification
         $this->assertFalse($result, "La fonction devrait retourner false quand l'ajout échoue");
     }
 
-    public function testAddCommentHandlesException()
+    public function testAddCommentThrowsExceptionOnDatabaseError()
     {
-        // Test 3: Gestion d'exception
+        // Test 3: La fonction DOIT lever une exception comme dans ModelComment
         $userId = 1;
         $itemId = 123;
         $type = 'movie';
@@ -110,10 +117,11 @@ class AddCommentTest extends TestCase
             ->method('prepare')
             ->willThrowException(new PDOException('Database error'));
         
-        // Exécution du test
-        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo, $this->mockStmt);
+        // Vérification que l'exception est bien levée (comme dans ModelComment)
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage('Database error');
         
-        // Vérification
-        $this->assertFalse($result, "La fonction devrait retourner false en cas d'exception");
+        // Exécution du test - doit lever l'exception
+        $this->addComment($userId, $itemId, $type, $content, $this->mockPdo);
     }
 }
