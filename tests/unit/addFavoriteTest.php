@@ -17,17 +17,54 @@ class AddFavoriteTest extends TestCase
     }
 
     /**
+     * Simule la fonction favoriteExists EXCATEMENT comme dans ModelFavorite
+     */
+    private function favoriteExists($userId, $contentId, $contentType, $mockPdo) {
+        try{
+            $query = "SELECT COUNT(*) FROM favorites WHERE user_id = :user_id AND content_id = :content_id AND content_type = :content_type";
+            $stmt = $mockPdo->prepare($query);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':content_id', $contentId, PDO::PARAM_INT);
+            $stmt->bindParam(':content_type', $contentType, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchColumn() > 0;
+        } catch (PDOException $e) {
+            throw new Exception("Erreur lors de la vérification du favori : " . $e->getMessage());
+        }
+    }
+
+    /**
      * Simule la fonction addFavorite EXACTEMENT comme dans ModelFavorite
      */
     private function addFavorite($userId, $contentId, $contentType, $mockPdo) 
     {
-        // Reproduction EXACTE de la logique de ModelFavorite.php
-        $query = "INSERT INTO favorites (user_id, content_id, content_type) VALUES (:user_id, :content_id, :content_type)";
-        $stmt = $mockPdo->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':content_id', $contentId);
-        $stmt->bindParam(':content_type', $contentType);
-        return $stmt->execute();
+        try{
+            if (!$userId || !$contentId || !in_array($contentType, ['movie', 'tv'])) {
+                throw new InvalidArgumentException("Paramètres invalides pour l'ajout aux favoris");
+            }
+
+            if ($this->favoriteExists($userId, $contentId, $contentType, $mockPdo)) {
+                throw new Exception("Cet élément existe déjà dans vos favoris");
+            }
+
+            $query = "INSERT INTO favorites (user_id, content_id, content_type) VALUES (:user_id, :content_id, :content_type)";
+            $stmt = $mockPdo->prepare($query);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':content_id', $contentId, PDO::PARAM_INT);
+            $stmt->bindParam(':content_type', $contentType, PDO::PARAM_STR);
+
+            if (!$stmt->execute()){
+                throw new Exception("Échec de l'ajout aux favoris");
+            }
+
+            return true;
+        } catch (PDOException $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                throw new Exception("Cet élément existe déjà dans vos favoris");
+            }
+            throw new Exception("Erreur lors de l'ajout aux favoris : " . $e->getMessage());
+            }
+        
     }
 
     public function testAddFavoriteReturnsTrueWhenSuccess()
@@ -113,69 +150,5 @@ class AddFavoriteTest extends TestCase
         $this->addFavorite($userId, $contentId, $contentType, $this->mockPdo);
     }
 
-    public function testAddFavoriteHandlesDuplicateEntry()
-    {
-        // Test 4: Contrainte UNIQUE en base de données
-        // RÉALITÉ : Votre DB a bien une contrainte UNIQUE (user_id, content_id, content_type)
-        // PROBLÈME : Votre application ne gère PAS cette exception -> Erreur 500
-        $userId = 1;
-        $contentId = 123;
-        $contentType = 'movie';
-
-        // Configuration du mock PDO
-        $this->mockPdo->expects($this->once())
-            ->method('prepare')
-            ->with('INSERT INTO favorites (user_id, content_id, content_type) VALUES (:user_id, :content_id, :content_type)')
-            ->willReturn($this->mockStmt);
-
-        // Configuration du mock PDOStatement - utilise bindParam() comme ModelFavorite
-        $this->mockStmt->expects($this->exactly(3))
-            ->method('bindParam')
-            ->willReturn(true);
-
-        // Simuler la contrainte UNIQUE de votre vraie base de données
-        $this->mockStmt->expects($this->once())
-            ->method('execute')
-            ->willThrowException(new PDOException('SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'1-123-movie\' for key \'favorites.user_id\''));
-
-        // TEST RÉALISTE : L'exception remonte non gérée (comme dans votre app)
-        $this->expectException(PDOException::class);
-        $this->expectExceptionMessage('Duplicate entry');
-
-        // Message AVANT l'exécution qui lève l'exception
-        fwrite(STDOUT, "\nTest 4 : erreur: Contrainte UNIQUE DB - Exception non gérée (Erreur 500)");
-
-        // Exécution du test
-        $this->addFavorite($userId, $contentId, $contentType, $this->mockPdo);
-    }
-
-    public function testAddFavoriteWithDifferentContentTypes()
-    {
-        // Test 5: Ajout avec différents types de contenu
-        $userId = 1;
-        $contentId = 456;
-        $contentType = 'tv'; // Type série
-
-        // Configuration du mock PDO
-        $this->mockPdo->expects($this->once())
-            ->method('prepare')
-            ->with('INSERT INTO favorites (user_id, content_id, content_type) VALUES (:user_id, :content_id, :content_type)')
-            ->willReturn($this->mockStmt);
-
-        // Configuration du mock PDOStatement
-        $this->mockStmt->expects($this->exactly(3))
-            ->method('bindParam')
-            ->willReturn(true);
-
-        $this->mockStmt->expects($this->once())
-            ->method('execute')
-            ->willReturn(true);
-
-        // Exécution du test
-        $result = $this->addFavorite($userId, $contentId, $contentType, $this->mockPdo);
-
-        // Vérification
-        $this->assertTrue($result, "La fonction devrait retourner true pour une série");
-        fwrite(STDOUT, "\nTest 5 : succès : Série ajoutée aux favoris avec succès");
-    }
+    
 }

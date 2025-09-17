@@ -17,9 +17,10 @@ class EmailExistsTest extends TestCase
     }
 
     /**
-     * Simule la fonction emailExists EXACTEMENT comme dans ModelUser
+     * Simule la fonction emailExists EXACTEMENT comme dans ModelUser 
+     * en modifiant le nom pour éviter d'appeler la fonction emailExists de ModelUser
      */
-    private function emailExists($email, $mockPdo)
+    private function emailExistsHelper($email, $mockPdo)
     {
         try {
             $query = "SELECT * FROM users WHERE user_email = :user_email";
@@ -54,7 +55,7 @@ class EmailExistsTest extends TestCase
             ->method('fetch')
             ->willReturn(false);
         
-        $result = $this->emailExists($email, $this->mockPdo);
+        $result = $this->emailExistsHelper($email, $this->mockPdo);
         
         $this->assertFalse($result, "La fonction devrait retourner false pour un email inexistant");
         fwrite(STDOUT, "Test 1 succès : Inscription réussie. Vous pouvez vous connecter");
@@ -77,7 +78,7 @@ class EmailExistsTest extends TestCase
             ->method('fetch')
             ->willReturn(['user_id' => 1, 'user_email' => $email]);
 
-        $result = $this->emailExists($email, $this->mockPdo);
+        $result = $this->emailExistsHelper($email, $this->mockPdo);
 
         // Assertion
         $this->assertTrue($result, "La fonction devrait retourner true pour un email existant");
@@ -94,7 +95,7 @@ class EmailExistsTest extends TestCase
             ->method('prepare')
             ->willThrowException(new PDOException('Database connection failed'));
         
-        $result = $this->emailExists($email, $this->mockPdo);
+        $result = $this->emailExistsHelper($email, $this->mockPdo);
         
         $this->assertFalse($result, "La fonction devrait retourner false en cas d'erreur de base de données");
         fwrite(STDOUT, "\nTest 3 erreur: Erreur lors de l'exécution de la requête");
