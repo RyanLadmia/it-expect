@@ -1,38 +1,12 @@
 <?php
+// ===== TRAITEMENT CENTRALISÉ - AUCUNE LOGIQUE DANS LA VUE =====
+$pageController = new PageController();
+$pageData = $pageController->handleFavoritePage();
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-} 
-// Vérification de la session utilisateur
-if (!isset($_SESSION['user'])) {
-    header('Location: login');
-    exit;
-}
-
-// Récupération de l'ID de l'utilisateur connecté
-$userId = $_SESSION['user'];
-
-// Création des instances du model et du controller
-$modelFavorite = new ModelFavorite();
-$favoriteController = new FavoriteController($modelFavorite, $userId);
-
-// Récupération des favoris
-$favorites = $favoriteController->showFavorites();
-
-// Traitement de la suppression d'un favori via AJAX
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'remove_favorite') {
-    $contentId = $_POST['content_id'];
-    $contentType = $_POST['content_type'];
-
-    // Suppression du favori
-    if ($favoriteController->removeFavorite($contentId, $contentType)) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false]);
-    }
-
-    exit; // Fin du traitement de la requête AJAX
-}
+// Variables pour la vue (extraction simple)
+$favorites = $pageData['favorites'];
+$success = $pageData['success'];
+$message = $pageData['message'];
 ?>
 
 <h1>Mes Favoris</h1>

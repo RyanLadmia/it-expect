@@ -126,15 +126,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         xhr.open('POST', '', true);
                         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                         xhr.onreadystatechange = function() {
-                            if (xhr.readyState === 4 && xhr.status === 200) {
-                                const response = JSON.parse(xhr.responseText);
-                                if (response.success) {
-                                    confirmationMessage.querySelector('.success-message').style.display = 'block';
-                                    setTimeout(() => {
-                                        item.style.display = 'none';
-                                    }, 2000);
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    try {
+                                        const response = JSON.parse(xhr.responseText);
+                                        if (response.success) {
+                                            confirmationMessage.querySelector('.success-message').style.display = 'block';
+                                            setTimeout(() => {
+                                                item.style.display = 'none';
+                                            }, 2000);
+                                        } else {
+                                            console.error('Erreur serveur:', response);
+                                            alert(`Erreur: ${response.message || 'Une erreur est survenue.'}`);
+                                        }
+                                    } catch (e) {
+                                        console.error('Erreur parsing JSON:', e, 'Response:', xhr.responseText);
+                                        alert("Erreur de communication avec le serveur.");
+                                    }
                                 } else {
-                                    alert("Une erreur est survenue.");
+                                    console.error('Erreur HTTP:', xhr.status, xhr.statusText, xhr.responseText);
+                                    alert(`Erreur HTTP ${xhr.status}: ${xhr.statusText}`);
                                 }
                             }
                         };

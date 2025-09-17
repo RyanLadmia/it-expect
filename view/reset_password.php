@@ -1,61 +1,16 @@
 <?php
-// Supprimer les instructions de débogage
-// error_log("Paramètres GET reçus: " . json_encode($_GET));
+// ===== TRAITEMENT CENTRALISÉ - AUCUNE LOGIQUE DANS LA VUE =====
+$pageController = new PageController();
+$pageData = $pageController->handleResetPasswordPage();
 
-if (isset($_GET['token'])) {
-    $token = $_GET['token'];
-    // error_log("Token reçu dans la page: " . $token);
-
-    $user = new ModelUser();
-    $successMessage = ''; // Initialisation du message de succès
-    $msgError = ''; // Initialisation du message d'erreur
-
-    // Vérifier le token
-    try {
-        $result = $user->verifyResetToken($token);
-        // error_log("Résultat de la vérification du token: " . ($result ? "valide (user_id: $result)" : "invalide"));
-
-        if ($result === false) {
-            $msgError = "Le token est invalide ou expiré. Veuillez demander un nouveau lien de réinitialisation.";
-        } else {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (isset($_POST['new_password']) && isset($_POST['confirm_password'])) {
-                    // Validation du mot de passe
-                    $newPassword = $_POST['new_password'];
-                    $confirmPassword = $_POST['confirm_password'];
-                    
-                    if (strlen($newPassword) < 8) {
-                        $msgError = "Le mot de passe doit contenir au moins 8 caractères.";
-                    } elseif ($newPassword !== $confirmPassword) {
-                        $msgError = "Les mots de passe ne correspondent pas.";
-                    } else {
-                        // Mise à jour du mot de passe
-                        $updateResult = $user->updatePassword($token, $newPassword);
-                        
-                        if ($updateResult) {
-                            $successMessage = "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.";
-                        } else {
-                            $msgError = "Une erreur s'est produite lors de la mise à jour du mot de passe.";
-                        }
-                    }
-                } else {
-                    $msgError = "Veuillez remplir tous les champs.";
-                }
-            }
-        }
-    } catch (Exception $e) {
-        // error_log("Exception lors de la réinitialisation: " . $e->getMessage());
-        $msgError = "Une erreur s'est produite. Veuillez réessayer ultérieurement.";
-    }
-} else {
-    // Rediriger vers la page de connexion si aucun token n'est fourni
-    // error_log("Aucun token n'a été fourni dans l'URL");
-    $msgError = "Aucun token n'a été fourni. Veuillez utiliser le lien envoyé par email.";
-}
+// Variables pour la vue (extraction simple)
+$successMessage = $pageData['successMessage'];
+$msgError = $pageData['msgError'];
+$showForm = $pageData['showForm'];
 ?>
 
 <div class="reset_wrapper">
-    <?php if (empty($successMessage)): ?>
+    <?php if ($showForm): ?>
         <!-- Formulaire de réinitialisation de mot de passe -->
         <form id="reset-password-form" method="POST" action="">
             <h2>Réinitialisation du mot de passe</h2>

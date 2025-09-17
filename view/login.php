@@ -1,93 +1,12 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+// ===== TRAITEMENT CENTRALISÉ - AUCUNE LOGIQUE DANS LA VUE =====
+$pageController = new PageController();
+$pageData = $pageController->handleLoginPage();
 
-$user = new UserController();
-$errors = [];
-$successMessage = null;
-$formType = 'register'; // Par défaut, afficher le formulaire d'inscription
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Déterminer quel formulaire a été soumis
-    $formType = $_POST['form_type'] ?? 'register';
-
-    if ($formType === 'register') {
-        // Validation des champs pour l'inscription
-        if (empty($_POST['firstname'])) {
-            $errors['firstname'] = 'Le prénom est requis';
-        }
-        if (empty($_POST['lastname'])) {
-            $errors['lastname'] = 'Le nom est requis';
-        }
-        if (empty($_POST['email'])) {
-            $errors['email'] = 'L\'email est requis';
-        }
-        if (empty($_POST['password'])) {
-            $errors['password'] = 'Le mot de passe est requis';
-        } elseif (strlen($_POST['password']) < 8) {
-            $errors['password'] = 'Le mot de passe doit contenir au moins 8 caractères';
-        }
-        if ($_POST['password'] !== $_POST['password_confirm']) {
-            $errors['password_confirm'] = 'Les mots de passe ne correspondent pas';
-        }
-
-        // Si aucune erreur, procéder à l'inscription
-        if (empty($errors)) {
-            $firstname = ucwords(strtolower(htmlspecialchars($_POST['firstname'])));
-            $lastname = ucwords(strtolower(htmlspecialchars($_POST['lastname'])));
-            $email = strtolower(htmlspecialchars($_POST['email']));
-            $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-            // Appel du contrôleur pour l'enregistrement
-            $result = $user->register($firstname, $lastname, $email, $password);
-
-            if ($result === 'Cet email est déjà utilisé.') {
-                $errors['email'] = $result;
-            } else {
-                $successMessage = 'Inscription réussie. Vous pouvez vous connecter.';
-            }
-        }
-    } elseif ($formType === 'login') {
-        // Validation des champs pour la connexion
-        $email = htmlspecialchars($_POST['email']);
-        $password = $_POST['password'];
-
-        if (empty($email)) {
-            $errors['email_login'] = 'L\'email est requis';
-        }
-        if (empty($password)) {
-            $errors['password_login'] = 'Le mot de passe est requis';
-        }
-
-        // Si aucune erreur, procéder à la connexion
-        if (empty($errors)) {
-            $loginResult = $user->login($email, $password); // Utiliser ta méthode existante pour la connexion
-
-            if ($loginResult) { // Vérifie si la connexion est réussie
-                header('Location: profile'); // Redirection en cas de succès
-                exit;
-            } else {
-                $errors['login'] = 'Email ou mot de passe incorrect.';
-            }
-        }
-    } elseif ($formType === 'forgot_password') {
-        // Gérer la réinitialisation du mot de passe
-        if (empty($_POST['email_forgot'])) {
-            $errors['email_forgot'] = 'L\'email est requis';
-        }
-
-        if (empty($errors)) {
-            $email = htmlspecialchars($_POST['email_forgot']);
-            $result = $user->sendPasswordResetEmail($email);
-            if ($result === true) { 
-                $successMessage = 'Un email de réinitialisation a été envoyé.';
-            } else {
-                $errors['email_forgot'] = $result;
-            }
-        }
-    }
-}
+// Variables pour la vue (extraction simple)
+$errors = $pageData['errors'];
+$successMessage = $pageData['successMessage'];
+$formType = $pageData['formType'];
 ?>
 
 <h1>Connexion :</h1>

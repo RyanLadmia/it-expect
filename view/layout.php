@@ -1,14 +1,7 @@
 <?php
-
+// ===== SESSION UNIQUEMENT - DÉCONNEXION GÉRÉE DANS CHAQUE PAGE =====
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
-}
-// Déconnexion
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Refresh:0");  // Cela permet de recharger la page pour mettre à jour l'affichage
-    exit;
 }
 ?>
 

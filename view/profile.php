@@ -1,73 +1,16 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+// ===== TRAITEMENT CENTRALISÉ - AUCUNE LOGIQUE DANS LA VUE =====
+$pageController = new PageController();
+$pageData = $pageController->handleProfilePage();
 
-// Vérification de la session utilisateur
-if (!isset($_SESSION['user'])) {
-    header('Location: login');
-    exit;
-}
+// Variables pour la vue (extraction simple)
+$user = $pageData['user'];
+$userId = $pageData['userId'];
 
-// Récupération de l'ID de l'utilisateur connecté
-$userId = $_SESSION['user'];
-
-// Inclure le contrôleur et récupérer les informations utilisateur
-$userController = new UserController();
-$userInfo = $userController->getAllUserInfos($userId);
-
-if ($userInfo) {
-    $userFirstName = $userInfo['user_firstname'];
-    $userLastName = $userInfo['user_lastname'];
-    $userEmail = $userInfo['user_email'];
-    $userCreatedAt = $userInfo['created_at'];
-} else {
-    $userFirstName = 'Utilisateur';
-    $userLastName = '';
-    $userEmail = '';
-    $userCreatedAt = '';
-}
-
-// Traitement des modifications via AJAX
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajax_request'])) {
-    header('Content-Type: application/json');
-
-    $field = $_POST['field'];
-    $newValue = $_POST['new_value'];
-    $confirmPassword = $_POST['confirm_password'] ?? null;
-
-    // Appeler le contrôleur pour la mise à jour
-    $updateResult = $userController->updateUserField($userId, $field, $newValue, $confirmPassword);
-
-    if ($updateResult === true) {
-        echo json_encode(['success' => true, 'message' => 'Informations mises à jour avec succès.']);
-    } else {
-        echo json_encode(['success' => false, 'message' => $updateResult]);
-    }
-    exit;
-}
-
-// Déconnexion
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header('Location: login');
-    exit;
-}
-
-// Suppression du compte
-if (isset($_POST['delete_account'])) {
-    $deleteResult = $userController->deleteUserById($userId);
-    if ($deleteResult) {
-        session_unset();
-        session_destroy();
-        header('Location: home'); // Redirection vers la page d'accueil après suppression
-        exit;
-    } else {
-        $deleteError = "Erreur lors de la suppression de votre compte.";
-    }
-}
-
+$userFirstName = $user['firstname'] ?? 'Utilisateur';
+$userLastName = $user['lastname'] ?? '';
+$userEmail = $user['email'] ?? '';
+$userCreatedAt = $user['created_at'] ?? '';
 ?>
 
 <div class="profile-wrapper">

@@ -1,165 +1,14 @@
 <?php
+// ===== TRAITEMENT CENTRALISÉ - AUCUNE LOGIQUE DANS LA VUE =====
+$pageController = new PageController();
+$pageData = $pageController->handleDetailPage();
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Gestion de la déconnexion
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Refresh:0");
-    exit;
-}
-
-// Vérifiez si l'utilisateur est connecté
-$isLoggedIn = isset($_SESSION['user']);
-
-// Récupération des données GET pour afficher les commentaires
-$itemId = $_GET['id'] ?? null;
-$itemType = $_GET['type'] ?? null;
-
-if (!$itemId || !$itemType) {
-    die('Paramètres manquants.');
-}
-
-if (!in_array($itemType, ['movie', 'tv'])) {
-    die('Type invalide.');
-}
-
-// Initialisation du contrôleur des commentaires
-$commentController = new CommentController();
-$comments = $commentController->getComments($itemId, $itemType);
-
-// Gestion des requêtes POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Vérification de l'utilisateur connecté
-    if (!isset($_SESSION['user'])) {
-        echo json_encode(['success' => false, 'message' => 'Vous devez être connecté pour effectuer cette action.']);
-        exit;
-    }
-
-    $userId = $_SESSION['user'];
-
-    // Traitement des requêtes JSON (AJAX) pour ajout de commentaire ou favori
-    $input = json_decode(file_get_contents('php://input'), true);
-    if ($input) {
-        if (!isset($input['id'], $input['type'])) {
-            echo json_encode(['success' => false, 'message' => 'Paramètres manquants.']);
-            exit;
-        }
-
-        $itemId = intval($input['id']);
-        $itemType = $input['type'];
-
-        if (isset($input['content'])) {
-            // Ajout de commentaire
-            $content = trim($input['content']);
-            if (empty($content)) {
-                echo json_encode(['success' => false, 'message' => 'Le commentaire ne peut pas être vide.']);
-                exit;
-            }
-
-            $success = $commentController->addComment($userId, $itemId, $itemType, $content);
-            if ($success) {
-                echo json_encode([
-                    'success' => true,
-                    'firstname' => $_SESSION['user_firstname'] ?? 'Anonyme',
-                    'lastname' => $_SESSION['user_lastname'] ?? 'Anonyme',
-                    'content' => $content,
-                ]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Impossible d\'ajouter le commentaire.']);
-            }
-        } elseif (isset($input['reply_content']) && isset($input['comment_id'])) {
-            // Ajout d'une réponse à un commentaire
-            $content = trim($input['reply_content']);
-            $commentId = intval($input['comment_id']);
-            
-            if (empty($content)) {
-                echo json_encode(['success' => false, 'message' => 'La réponse ne peut pas être vide.']);
-                exit;
-            }
-
-            $success = $commentController->addReply($userId, $commentId, $content);
-            if ($success) {
-                echo json_encode([
-                    'success' => true,
-                    'firstname' => $_SESSION['user_firstname'] ?? 'Anonyme',
-                    'lastname' => $_SESSION['user_lastname'] ?? 'Anonyme',
-                    'content' => $content,
-                    'comment_id' => $commentId
-                ]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Impossible d\'ajouter la réponse.']);
-            }
-        } elseif (isset($input['comment_id']) && $input['action'] === 'delete_comment') {
-            // Suppression de commentaire via AJAX
-            $commentId = intval($input['comment_id']);
-            
-            // Vérifie si le commentaire appartient bien à l'utilisateur
-            $success = $commentController->deleteComment($commentId, $userId);
-            if ($success) {
-                echo json_encode(['success' => true, 'message' => 'Commentaire supprimé avec succès.']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Impossible de supprimer le commentaire.']);
-            }
-        } elseif (isset($input['reply_id']) && $input['action'] === 'delete_reply') {
-            // Suppression d'une réponse via AJAX
-            $replyId = intval($input['reply_id']);
-            
-            // Vérifie si la réponse appartient bien à l'utilisateur
-            $success = $commentController->deleteReply($replyId, $userId);
-            if ($success) {
-                echo json_encode(['success' => true, 'message' => 'Réponse supprimée avec succès.']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Impossible de supprimer la réponse.']);
-            }
-        } else {
-            // Ajout aux favoris
-            $favoritesModel = new ModelFavorite();
-            $success = $favoritesModel->addFavorite($userId, $itemId, $itemType);
-
-            echo json_encode(['success' => $success]);
-        }
-        exit;
-    }
-
-    // Gestion de la suppression de commentaire via formulaire classique (si nécessaire)
-    if (isset($_POST['delete_comment'])) {
-        $commentId = intval($_POST['comment_id']);
-        
-        // Vérifiez que le commentaire appartient bien à l'utilisateur
-        $success = $commentController->deleteComment($commentId, $userId);
-        if ($success) {
-            echo 'Commentaire supprimé avec succès.';
-        } else {
-            echo 'Impossible de supprimer le commentaire.';
-        }
-
-        // Redirection pour éviter la soumission multiple du formulaire
-        header('Location: ' . $_SERVER['REQUEST_URI']);
-        exit;
-    }
-    
-    // Gestion de la suppression d'une réponse via formulaire classique (si nécessaire)
-    if (isset($_POST['delete_reply'])) {
-        $replyId = intval($_POST['reply_id']);
-        
-        // Vérifiez que la réponse appartient bien à l'utilisateur
-        $success = $commentController->deleteReply($replyId, $userId);
-        if ($success) {
-            echo 'Réponse supprimée avec succès.';
-        } else {
-            echo 'Impossible de supprimer la réponse.';
-        }
-
-        // Redirection pour éviter la soumission multiple du formulaire
-        header('Location: ' . $_SERVER['REQUEST_URI']);
-        exit;
-    }
-}
-
+// Variables pour la vue (extraction simple)
+$itemId = $pageData['itemId'];
+$itemType = $pageData['itemType'];
+$userId = $pageData['userId'];
+$isLoggedIn = $pageData['isLoggedIn'];
+$comments = $pageData['comments'];
 ?>
 <h1>Détails :</h1>
 
@@ -188,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <small>Posté le <?= date('d/m/Y H:i', strtotime($comment['created_at'])) ?></small>
                         
                         <!-- Bouton de suppression du commentaire -->
-                        <?php if (isset($_SESSION['user']) && $_SESSION['user'] == $comment['user_id']): ?>
+                        <?php if ($userId && $userId == $comment['user_id']): ?>
                             <button class="delete-comment-btn" data-comment-id="<?= $comment_id ?>">Supprimer mon commentaire</button>
                         <?php endif; ?>
                         
@@ -207,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <small>Posté le <?= date('d/m/Y H:i', strtotime($reply['created_at'])) ?></small>
                                             
                                             <!-- Bouton de suppression de réponse -->
-                                            <?php if (isset($_SESSION['user']) && $_SESSION['user'] == $reply['user_id']): ?>
+                                            <?php if ($userId && $userId == $reply['user_id']): ?>
                                                 <button class="delete-reply-btn" data-reply-id="<?= $reply['reply_id'] ?>">Supprimer ma réponse</button>
                                             <?php endif; ?>
                                         </div>

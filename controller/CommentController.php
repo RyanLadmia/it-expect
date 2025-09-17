@@ -8,10 +8,48 @@ class CommentController
         $this->ModelComment = new ModelComment();
     }
 
-    // Ajouter un commentaire
+    /**
+     * Ajouter un commentaire avec validation et gestion d'erreurs
+     * @return array Résultat avec success et message
+     */
     public function addComment($userId, $itemId, $type, $content)
     {
-        return $this->ModelComment->addComment($userId, $itemId, $type, $content);
+        try {
+            // Validation côté contrôleur
+            if (!$userId) {
+                return [
+                    'success' => false,
+                    'message' => 'Vous devez être connecté pour commenter'
+                ];
+            }
+
+            if (empty(trim($content))) {
+                return [
+                    'success' => false,
+                    'message' => 'Le commentaire ne peut pas être vide'
+                ];
+            }
+
+            if (strlen($content) > 1000) {
+                return [
+                    'success' => false,
+                    'message' => 'Le commentaire est trop long (maximum 1000 caractères)'
+                ];
+            }
+
+            // Appel du modèle
+            $this->ModelComment->addComment($userId, $itemId, $type, $content);
+            
+            return [
+                'success' => true,
+                'message' => 'Commentaire ajouté avec succès !'
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
     // Récupérer les commentaires
@@ -101,6 +139,179 @@ class CommentController
             // Rediriger après suppression pour éviter la soumission multiple du formulaire
             header("Location: {$_SERVER['PHP_SELF']}?id={$_POST['item_id']}&type={$_POST['type']}");
             exit;
+        }
+    }
+
+    // ===== MÉTHODES POUR LES PAGES (GESTION LOGIQUE VUE) =====
+
+    /**
+     * Vérifier l'authentification et récupérer l'userId
+     */
+    public function requireAuth() {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['user'])) {
+            return null;
+        }
+        
+        return $_SESSION['user'];
+    }
+
+    /**
+     * Traiter les requêtes AJAX pour detail.php
+     */
+    public function handleDetailPageAjax($input, $userId) {
+        header('Content-Type: application/json');
+        
+        // Validation de base
+        if (!$userId) {
+            echo json_encode(['success' => false, 'message' => 'Vous devez être connecté pour effectuer cette action.']);
+            exit;
+        }
+
+        if (!isset($input['id'], $input['type'])) {
+            echo json_encode(['success' => false, 'message' => 'Paramètres manquants.']);
+            exit;
+        }
+
+        $itemId = intval($input['id']);
+        $itemType = $input['type'];
+
+        // Ajout de commentaire
+        if (isset($input['content'])) {
+            $content = trim($input['content']);
+            if (empty($content)) {
+                echo json_encode(['success' => false, 'message' => 'Le commentaire ne peut pas être vide.']);
+                exit;
+            }
+
+            $result = $this->addComment($userId, $itemId, $itemType, $content);
+            if ($result['success']) {
+                $result['firstname'] = $_SESSION['user_firstname'] ?? 'Anonyme';
+                $result['lastname'] = $_SESSION['user_lastname'] ?? 'Anonyme';
+                $result['content'] = $content;
+            }
+            echo json_encode($result);
+            exit;
+        }
+
+        // Ajout de réponse
+        if (isset($input['reply_content']) && isset($input['comment_id'])) {
+            $content = trim($input['reply_content']);
+            $commentId = intval($input['comment_id']);
+            
+            if (empty($content)) {
+                echo json_encode(['success' => false, 'message' => 'La réponse ne peut pas être vide.']);
+                exit;
+            }
+
+            $success = $this->addReply($userId, $commentId, $content);
+            if ($success) {
+                echo json_encode([
+                    'success' => true,
+                    'firstname' => $_SESSION['user_firstname'] ?? 'Anonyme',
+                    'lastname' => $_SESSION['user_lastname'] ?? 'Anonyme',
+                    'content' => $content,
+                    'comment_id' => $commentId
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Impossible d\'ajouter la réponse.']);
+            }
+            exit;
+        }
+
+        // Suppression de commentaire
+        if (isset($input['comment_id']) && $input['action'] === 'delete_comment') {
+            $commentId = intval($input['comment_id']);
+            
+            $success = $this->deleteComment($commentId, $userId);
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Commentaire supprimé avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Impossible de supprimer le commentaire.']);
+            }
+            exit;
+        }
+
+        // Suppression de réponse
+        if (isset($input['reply_id']) && $input['action'] === 'delete_reply') {
+            $replyId = intval($input['reply_id']);
+            
+            $success = $this->deleteReply($replyId, $userId);
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Réponse supprimée avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Impossible de supprimer la réponse.']);
+            }
+            exit;
+        }
+
+        // Si aucune action reconnue, c'est probablement un ajout aux favoris
+        echo json_encode(['success' => false, 'message' => 'Action non reconnue pour CommentController']);
+        exit;
+    }
+
+    /**
+     * Traiter les requêtes POST classiques (formulaires)
+     */
+    public function handleDetailPagePost($postData, $userId) {
+        // Suppression de commentaire via formulaire
+        if (isset($postData['delete_comment'])) {
+            $commentId = intval($postData['comment_id']);
+            
+            $success = $this->deleteComment($commentId, $userId);
+            if ($success) {
+                echo 'Commentaire supprimé avec succès.';
+            } else {
+                echo 'Impossible de supprimer le commentaire.';
+            }
+
+            header('Location: ' . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+        
+        // Suppression de réponse via formulaire
+        if (isset($postData['delete_reply'])) {
+            $replyId = intval($postData['reply_id']);
+            
+            $success = $this->deleteReply($replyId, $userId);
+            if ($success) {
+                echo 'Réponse supprimée avec succès.';
+            } else {
+                echo 'Impossible de supprimer la réponse.';
+            }
+
+            header('Location: ' . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+    }
+
+    /**
+     * Traiter les requêtes de déconnexion
+     */
+    public function handleLogout() {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        session_unset();
+        session_destroy();
+        header("Refresh:0");
+        exit;
+    }
+
+    /**
+     * Valider les paramètres de la page detail
+     */
+    public function validateDetailParams($itemId, $itemType) {
+        if (!$itemId || !$itemType) {
+            die('Paramètres manquants.');
+        }
+
+        if (!in_array($itemType, ['movie', 'tv'])) {
+            die('Type invalide.');
         }
     }
 }

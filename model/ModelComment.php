@@ -11,19 +11,48 @@ class ModelComment
         $this->connexion->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
-    // Ajouter un commentaire
+    /**
+     * Ajouter un commentaire avec validation
+     * @throws Exception En cas d'erreur ou de paramètres invalides
+     */
     public function addComment($userId, $itemId, $type, $content)
     {
-        $stmt = $this->connexion->prepare("
-            INSERT INTO comments (user_id, item_id, type, content) 
-            VALUES (:user_id, :item_id, :type, :content)
-        ");
-        return $stmt->execute([
-            ':user_id' => $userId,
-            ':item_id' => $itemId,
-            ':type' => $type,
-            ':content' => $content
-        ]);
+        try {
+            // Validation des paramètres
+            if (!$userId || !is_numeric($userId)) {
+                throw new InvalidArgumentException("ID utilisateur invalide");
+            }
+            if (!$itemId || !is_numeric($itemId)) {
+                throw new InvalidArgumentException("ID d'élément invalide");
+            }
+            if (!in_array($type, ['movie', 'tv'])) {
+                throw new InvalidArgumentException("Type d'élément invalide");
+            }
+            if (empty(trim($content)) || strlen(trim($content)) < 1) {
+                throw new InvalidArgumentException("Le contenu du commentaire ne peut pas être vide");
+            }
+            if (strlen($content) > 1000) {
+                throw new InvalidArgumentException("Le commentaire est trop long (max 1000 caractères)");
+            }
+
+            $stmt = $this->connexion->prepare("
+                INSERT INTO comments (user_id, item_id, type, content) 
+                VALUES (:user_id, :item_id, :type, :content)
+            ");
+            
+            if (!$stmt->execute([
+                ':user_id' => $userId,
+                ':item_id' => $itemId,
+                ':type' => $type,
+                ':content' => trim($content)
+            ])) {
+                throw new Exception("Échec de l'ajout du commentaire");
+            }
+            
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Erreur lors de l'ajout du commentaire : " . $e->getMessage());
+        }
     }
 
     // Récupérer les commentaires
