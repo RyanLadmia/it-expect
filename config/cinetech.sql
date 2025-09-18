@@ -191,7 +191,7 @@ ALTER TABLE `comments`
 -- Constraints for table `favorites`
 --
 ALTER TABLE `favorites`
-  ADD CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `replies`
