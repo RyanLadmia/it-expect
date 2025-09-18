@@ -167,13 +167,21 @@ class ModelUser
 
     public function deleteUserById($userId)
     {
-        try
-        {
+        try {
             $query = "DELETE FROM users WHERE user_id = :user_id";
-            $result = $this->connexion->prepare($query);
-            $result->execute(['user_id' => $userId]);
+            $stmt = $this->connexion->prepare($query);
+
+            if (!$stmt->execute(['user_id' => $userId])) {
+                return false; // si la requête échoue directement
+            }
+
+            // Vérifie si au moins une ligne a été supprimée
+            if ($stmt->rowCount() === 0) {
+                return false; // utilisateur trouvé mais aucune donnée supprimée
+            }
+
             return true;
-        } catch (\PDOException $e){
+        } catch (\PDOException $e) {
             return false; 
         }
     }
