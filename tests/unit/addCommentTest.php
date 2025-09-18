@@ -11,117 +11,128 @@ class AddCommentTest extends TestCase
     {
         // Mock de PDO
         $this->mockPdo = $this->createMock(PDO::class);
-        
-        // Mock de PDOStatement
         $this->mockStmt = $this->createMock(PDOStatement::class);
     }
 
     /**
-     * Simule la fonction addComment EXACTEMENT comme dans ModelComment
+     * Helper simulant exactement la fonction addComment de ModelComment
      */
-    private function addComment($userId, $itemId, $type, $content, $mockPdo)
+    private function addCommentHelper($userId, $itemId, $type, $content, $mockPdo)
     {
-        // Reproduction EXACTE de la logique de ModelComment.php
-        $stmt = $mockPdo->prepare("
-            INSERT INTO comments (user_id, item_id, type, content) 
-            VALUES (:user_id, :item_id, :type, :content)
-        ");
-        return $stmt->execute([
-            ':user_id' => $userId,
-            ':item_id' => $itemId,
-            ':type' => $type,
-            ':content' => $content
-        ]);
+        try {
+            if (!$userId || !is_numeric($userId)) {
+                throw new InvalidArgumentException("ID utilisateur invalide");
+            }
+            if (!$itemId || !is_numeric($itemId)) {
+                throw new InvalidArgumentException("ID d'élément invalide");
+            }
+            if (!in_array($type, ['movie', 'tv'])) {
+                throw new InvalidArgumentException("Type d'élément invalide");
+            }
+            if (empty(trim($content)) || strlen(trim($content)) < 1) {
+                throw new InvalidArgumentException("Le contenu du commentaire ne peut pas être vide");
+            }
+            if (strlen($content) > 1000) {
+                throw new InvalidArgumentException("Le commentaire est trop long (max 1000 caractères)");
+            }
+
+            $stmt = $mockPdo->prepare("
+                INSERT INTO comments (user_id, item_id, type, content) 
+                VALUES (:user_id, :item_id, :type, :content)
+            ");
+
+            if (!$stmt->execute([
+                ':user_id' => $userId,
+                ':item_id' => $itemId,
+                ':type' => $type,
+                ':content' => trim($content)
+            ])) {
+                throw new Exception("Échec de l'ajout du commentaire");
+            }
+
+            return true;
+        } catch (PDOException $e) {
+            throw new Exception("Erreur lors de l'ajout du commentaire : " . $e->getMessage());
+        }
     }
 
+    // Test 1 : Ajout réussi d'un commentaire
     public function testAddCommentReturnsTrueWhenSuccess()
     {
-        // Test 1: Ajout réussi d'un commentaire
         $userId = 1;
         $itemId = 123;
         $type = 'movie';
         $content = 'Super film !';
-        
-        // Configuration du mock PDO
+
         $this->mockPdo->expects($this->once())
             ->method('prepare')
             ->with("
-            INSERT INTO comments (user_id, item_id, type, content) 
-            VALUES (:user_id, :item_id, :type, :content)
-        ")
+                INSERT INTO comments (user_id, item_id, type, content) 
+                VALUES (:user_id, :item_id, :type, :content)
+            ")
             ->willReturn($this->mockStmt);
-        
-        // Configuration du mock Statement - utilise execute() avec array comme ModelComment
+
         $this->mockStmt->expects($this->once())
             ->method('execute')
             ->with([
                 ':user_id' => $userId,
                 ':item_id' => $itemId,
                 ':type' => $type,
-                ':content' => $content
+                ':content' => trim($content)
             ])
             ->willReturn(true);
-        
-        // Exécution du test
-        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo);
-        
-        // Vérification
+
+        $result = $this->addCommentHelper($userId, $itemId, $type, $content, $this->mockPdo);
+
         $this->assertTrue($result, "La fonction devrait retourner true quand l'ajout réussit");
+        fwrite(STDOUT, "Test 1 : succès : Commentaire ajouté avec succès");
     }
 
+    // Test 2 : Échec de l'ajout d'un commentaire
     public function testAddCommentReturnsFalseWhenFailure()
     {
-        // Test 2: Échec de l'ajout d'un commentaire
         $userId = 1;
         $itemId = 123;
         $type = 'movie';
         $content = 'Commentaire échoué';
-        
-        // Configuration du mock PDO
+
         $this->mockPdo->expects($this->once())
             ->method('prepare')
-            ->with("
-            INSERT INTO comments (user_id, item_id, type, content) 
-            VALUES (:user_id, :item_id, :type, :content)
-        ")
             ->willReturn($this->mockStmt);
-        
-        // Configuration du mock Statement - utilise execute() avec array comme ModelComment
+
         $this->mockStmt->expects($this->once())
             ->method('execute')
             ->with([
                 ':user_id' => $userId,
                 ':item_id' => $itemId,
                 ':type' => $type,
-                ':content' => $content
+                ':content' => trim($content)
             ])
-            ->willReturn(false); // Simulation d'un échec
-        
-        // Exécution du test
-        $result = $this->addComment($userId, $itemId, $type, $content, $this->mockPdo);
-        
-        // Vérification
-        $this->assertFalse($result, "La fonction devrait retourner false quand l'ajout échoue");
+            ->willReturn(false);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Échec de l'ajout du commentaire");
+
+        fwrite(STDOUT, "\nTest 2 : échec : Échec de l'ajout du commentaire");
+        $this->addCommentHelper($userId, $itemId, $type, $content, $this->mockPdo);
     }
 
+    // Test 3 : Erreur lors de la requête PDO
     public function testAddCommentThrowsExceptionOnDatabaseError()
     {
-        // Test 3: La fonction DOIT lever une exception comme dans ModelComment
         $userId = 1;
         $itemId = 123;
         $type = 'movie';
         $content = 'Commentaire avec erreur';
-        
-        // Simuler une exception PDO
+
         $this->mockPdo->expects($this->once())
             ->method('prepare')
             ->willThrowException(new PDOException('Database error'));
-        
-        // Vérification que l'exception est bien levée (comme dans ModelComment)
-        $this->expectException(PDOException::class);
-        $this->expectExceptionMessage('Database error');
-        
-        // Exécution du test - doit lever l'exception
-        $this->addComment($userId, $itemId, $type, $content, $this->mockPdo);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Erreur lors de l\'ajout du commentaire : Database error');
+
+        fwrite(STDOUT, "\nTest 3 : échec : Erreur lors de l'exécution de la requête");
+        $this->addCommentHelper($userId, $itemId, $type, $content, $this->mockPdo);
     }
 }
