@@ -206,21 +206,33 @@ class UserController
     }
 
     /**
-     * Traiter la déconnexion
+     * Traiter la déconnexion en utilisant le modèle
      */
     public function handleLogout() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
+        try {
+            $result = $this->ModelUser->logout();
+            
+            if ($result !== false) {
+                return [
+                    'success' => true,
+                    'message' => 'Déconnexion réussie',
+                    'redirect' => 'login',
+                    'user_info' => $result
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Aucune session active à déconnecter',
+                    'redirect' => 'login'
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Erreur lors de la déconnexion : ' . $e->getMessage(),
+                'redirect' => 'login'
+            ];
         }
-        
-        session_unset();
-        session_destroy();
-        
-        return [
-            'success' => true,
-            'message' => 'Déconnexion réussie',
-            'redirect' => 'login'
-        ];
     }
 
     /**

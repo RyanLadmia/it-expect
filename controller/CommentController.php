@@ -288,19 +288,6 @@ class CommentController
         }
     }
 
-    /**
-     * Traiter les requêtes de déconnexion
-     */
-    public function handleLogout() {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        session_unset();
-        session_destroy();
-        header("Refresh:0");
-        exit;
-    }
 
     /**
      * Valider les paramètres de la page detail

@@ -45,9 +45,15 @@ class ModelUser
             $user = $result->fetch(\PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['user_password'])) {
+                // Démarrer la session si pas encore démarrée
+                if (session_status() == PHP_SESSION_NONE) {
+                    session_start();
+                }
+                
                 $_SESSION['user'] = $user['user_id'];
-                $_SESSION['user_firstname'] = $user['user_firstname']; // Ajout du prénom dans la session
-                $_SESSION['user_lastname'] = $user['user_lastname']; // Ajout du prénom dans la session
+                $_SESSION['user_firstname'] = $user['user_firstname'];
+                $_SESSION['user_lastname'] = $user['user_lastname'];
+                $_SESSION['user_email'] = $user['user_email'];
 
                 return $user;
             } else {
@@ -55,6 +61,44 @@ class ModelUser
             }
         } catch (\PDOException $e) {
             throw new \Exception("Erreur lors de la connexion : " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Déconnexion de l'utilisateur
+     * Suit le même principe que login() avec gestion de session
+     */
+    public function logout()
+    {
+        try {
+            // Démarrer la session si pas encore démarrée
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
+            
+            // Vérifier qu'une session utilisateur existe
+            if (!isset($_SESSION['user'])) {
+                return false; // Cohérent avec le retour de login()
+            }
+            
+            // Sauvegarder les infos utilisateur avant déconnexion
+            $userInfo = [
+                'user_id' => $_SESSION['user'] ?? null,
+                'user_email' => $_SESSION['user_email'] ?? null
+            ];
+            
+            // Nettoyer complètement la session
+            session_unset();
+            session_destroy();
+            
+            // Démarrer une nouvelle session propre
+            session_start();
+            session_regenerate_id(true);
+            
+            return $userInfo; // Cohérent avec le retour de login()
+            
+        } catch (\Exception $e) {
+            throw new \Exception("Erreur lors de la déconnexion : " . $e->getMessage());
         }
     }
 

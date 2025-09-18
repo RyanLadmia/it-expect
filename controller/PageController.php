@@ -22,28 +22,12 @@ class PageController
         $this->commentController = new CommentController();
     }
 
-    /**
-     * Gérer la déconnexion globale (bouton du layout)
-     */
-    private function handleGlobalLogout()
-    {
-        if (isset($_POST['logout'])) {
-            $result = $this->userController->handleLogout();
-            if ($result['success'] && isset($result['redirect'])) {
-                header('Location: ' . $result['redirect']);
-                exit;
-            }
-        }
-    }
 
     /**
      * Traiter la page de connexion/inscription
      */
     public function handleLoginPage()
     {
-        // Gestion de la déconnexion globale
-        $this->handleGlobalLogout();
-
         $data = [
             'errors' => [],
             'successMessage' => null,
@@ -138,8 +122,6 @@ class PageController
      */
     public function handleFavoritePage()
     {
-        // Gestion de la déconnexion globale
-        $this->handleGlobalLogout();
 
         // Vérification de l'authentification
         $userId = $this->favoriteController->requireAuthForFavorites();
@@ -164,8 +146,6 @@ class PageController
      */
     public function handleDetailPage()
     {
-        // Gestion de la déconnexion globale
-        $this->handleGlobalLogout();
 
         // Validation des paramètres
         $itemId = $_GET['id'] ?? null;
@@ -213,8 +193,6 @@ class PageController
      */
     public function handleResetPasswordPage()
     {
-        // Gestion de la déconnexion globale
-        $this->handleGlobalLogout();
 
         $pageData = $this->userController->handleResetPasswordPage($_GET, $_POST ?? null);
         return [
