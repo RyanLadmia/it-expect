@@ -65,6 +65,7 @@ class getUserInfosTest extends TestCase
     
         // Assertion 
         $this->assertTrue(is_array($result), "La fonction devrait retourner un tableau avec les infos de l'utilisateur");
+        fwrite(STDOUT, "\n\nTests unitaires GetUserInfosTest.php\n");
         fwrite(STDOUT, "Test 1 : succès : Données de l'utilisateur récupérées avec succès");
     }
 

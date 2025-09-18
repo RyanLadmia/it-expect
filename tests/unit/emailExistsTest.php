@@ -62,6 +62,7 @@ class EmailExistsTest extends TestCase
         
         // Assertion
         $this->assertFalse($result, "La fonction devrait retourner false pour un email inexistant");
+        fwrite(STDOUT, "\n\nTests unitaires EmailExistsTest.php\n");
         fwrite(STDOUT, "Test 1 : succès : Email inexistant : Vous pouvez utiliser cet email");
     }
 

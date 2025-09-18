@@ -85,6 +85,7 @@ class AddCommentTest extends TestCase
         $result = $this->addCommentHelper($userId, $itemId, $type, $content, $this->mockPdo);
 
         $this->assertTrue($result, "La fonction devrait retourner true quand l'ajout réussit");
+        fwrite(STDOUT, "\n\nTests unitaires AddCommentTest.php\n");
         fwrite(STDOUT, "Test 1 : succès : Commentaire ajouté avec succès");
     }
 

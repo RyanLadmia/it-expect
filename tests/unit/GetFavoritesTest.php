@@ -66,6 +66,7 @@ class GetFavoritesTest extends TestCase
 
         // Assertion
         $this->assertTrue(is_array($result), "La fonction devrait retourner un tableau avec les favoris de l'utilisateur");
+        fwrite(STDOUT, "\n\nTests unitaires GetFavoritesTest.php\n");
         fwrite(STDOUT, "Test 1 : succès : Favoris récupérés avec succès");
     }
 

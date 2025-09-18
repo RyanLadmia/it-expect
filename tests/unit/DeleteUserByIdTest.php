@@ -66,6 +66,7 @@ class DeleteUserByIdTest extends TestCase
 
         // Assertion
         $this->assertTrue($result, "La fonction devrait retourner true quand l'utilisateur est supprimé.");
+        fwrite(STDOUT, "\n\nTests unitaires DeleteUserByIdTest.php\n");
         fwrite(STDOUT, "Test 1 : succès : L'utilisateur a bien été supprimé");
     }
 
