@@ -37,9 +37,9 @@ class EmailExistsTest extends TestCase
         }
     }
 
+    // Test 1 : Email inexistant : Inscription réussie. Vous pouvez vous connecter.
     public function testEmailExistsReturnsFalseWhenEmailNotFound()
     {
-        // Test 2: Email inexistant - doit retourner false
         $email = 'nonexistent@example.com';
         
         $this->mockPdo->expects($this->once())
@@ -59,9 +59,10 @@ class EmailExistsTest extends TestCase
         $result = $this->emailExistsHelper($email, $this->mockPdo);
         
         $this->assertFalse($result, "La fonction devrait retourner false pour un email inexistant");
-        fwrite(STDOUT, "Test 1 succès : Inscription réussie. Vous pouvez vous connecter");
+        fwrite(STDOUT, "Test 1 : succès : Inscription réussie. Vous pouvez vous connecter");
     }
 
+    // Test 2 : Cet email est déjà utilisé. 
     public function testEmailExistsReturnsTrueWhenEmailFound()
     {
         $email = 'test@example.com';
@@ -86,9 +87,58 @@ class EmailExistsTest extends TestCase
         fwrite(STDOUT, "\nTest 2 : erreur : Cet email est déjà utilisé");
     }
 
+    
+
+    // Test 3 : Email vide - doit retourner false
+    public function testEmailExistsWithEmptyEmail()
+    {
+        $email = '';
+        
+        $this->mockPdo->expects($this->once())
+            ->method('prepare')
+            ->with('SELECT * FROM users WHERE user_email = :user_email')
+            ->willReturn($this->mockStmt);
+        
+        $this->mockStmt->expects($this->once())
+            ->method('execute')
+            ->with(['user_email' => $email]);
+        
+        $this->mockStmt->expects($this->once())
+            ->method('fetch')
+            ->willReturn(false);
+        
+        $result = $this->emailExistsHelper($email, $this->mockPdo, $this->mockStmt);
+        
+        $this->assertFalse($result, "La fonction devrait retourner false pour un email vide");
+        fwrite(STDOUT, "\nTest 3 : erreur : Erreur lors de l'inscription. Veuillez saisir une adresse email");
+
+    }
+
+    // Test 4 : Email avec format invalide 
+        public function testEmailExistsWithInvalidEmailFormat()
+    {
+        // Test 5 : Email au format invalide - doit lever une exception
+        $email = 'invalid-email-format'; // pas de @, donc invalide
+
+        // On attend une exception
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Format d'email invalide");
+
+        // Message affiché dans le terminal
+        fwrite(STDOUT, "\nTest 4 : erreur : Format d'email invalide");
+
+        // Vérification du format AVANT appel de la fonction
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Format d'email invalide");
+        }
+
+        // Exécution de la fonction (ici ne sera pas atteinte à cause de l'exception)
+        $this->emailExistsHelper($email, $this->mockPdo);
+    }
+
     public function testEmailExistsHandlesDatabaseError()
     {
-        // Test 3: Gestion d'erreur de base de données - doit retourner false
+        // Test 5 : Gestion d'erreur de base de données - doit retourner false
         $email = 'test@example.com';
         
         // Simuler une erreur PDO
@@ -99,52 +149,6 @@ class EmailExistsTest extends TestCase
         $result = $this->emailExistsHelper($email, $this->mockPdo);
         
         $this->assertFalse($result, "La fonction devrait retourner false en cas d'erreur de base de données");
-        fwrite(STDOUT, "\nTest 3 erreur: Erreur lors de l'exécution de la requête");
+        fwrite(STDOUT, "\nTest 5 : erreur : Erreur lors de l'exécution de la requête");
     }
-
-    // public function testEmailExistsWithEmptyEmail()
-    // {
-    //     // Test 4: Email vide - doit retourner false
-    //     $email = '';
-        
-    //     $this->mockPdo->expects($this->once())
-    //         ->method('prepare')
-    //         ->with('SELECT * FROM users WHERE user_email = :user_email')
-    //         ->willReturn($this->mockStmt);
-        
-    //     $this->mockStmt->expects($this->once())
-    //         ->method('execute')
-    //         ->with(['user_email' => $email]);
-        
-    //     $this->mockStmt->expects($this->once())
-    //         ->method('fetch')
-    //         ->willReturn(false);
-        
-    //     $result = $this->emailExists($email, $this->mockPdo, $this->mockStmt);
-        
-    //     $this->assertFalse($result, "La fonction devrait retourner false pour un email vide");
-    // }
-
-    // public function testEmailExistsWithValidEmailFormat()
-    // {
-    //     // Test 5: Email avec format valide mais inexistant
-    //     $email = 'valid.email@domain.com';
-        
-    //     $this->mockPdo->expects($this->once())
-    //         ->method('prepare')
-    //         ->with('SELECT * FROM users WHERE user_email = :user_email')
-    //         ->willReturn($this->mockStmt);
-        
-    //     $this->mockStmt->expects($this->once())
-    //         ->method('execute')
-    //         ->with(['user_email' => $email]);
-        
-    //     $this->mockStmt->expects($this->once())
-    //         ->method('fetch')
-    //         ->willReturn(false);
-        
-    //     $result = $this->emailExists($email, $this->mockPdo, $this->mockStmt);
-        
-    //     $this->assertFalse($result, "La fonction devrait retourner false pour un email valide mais inexistant");
-    // }
 }

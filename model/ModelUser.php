@@ -76,7 +76,7 @@ class ModelUser
     }
 
 
-    public function getAllUserInfos($userId)
+    public function getUserInfos($userId)
     {
         try
         {

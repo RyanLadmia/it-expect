@@ -77,9 +77,9 @@ class UserController
         }
     }
 
-    public function getAllUserInfos($userId)
+    public function getUserInfos($userId)
     {
-        return $this->ModelUser->getAllUserInfos($userId);
+        return $this->ModelUser->getUserInfos($userId);
     }
 
 
@@ -361,7 +361,7 @@ class UserController
         }
 
         $userId = $_SESSION['user'];
-        $userInfo = $this->getAllUserInfos($userId);
+        $userInfo = $this->getUserInfos($userId);
 
         if ($userInfo) {
             return [
