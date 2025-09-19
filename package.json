@@ -1,0 +1,37 @@
+{
+  "name": "cinetech-tests",
+  "version": "1.0.0",
+  "description": "Tests E2E pour l'application Cinetech",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:run:headless": "cypress run --headless",
+    "playwright:test": "playwright test",
+    "playwright:test:ui": "playwright test --ui",
+    "playwright:test:headed": "playwright test --headed",
+    "test:e2e": "npm run cypress:run && npm run playwright:test",
+    "test:e2e:dev": "npm run cypress:open"
+  },
+  "devDependencies": {
+    "cypress": "^13.13.0",
+    "@playwright/test": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/cinetech.git"
+  },
+  "keywords": [
+    "cypress",
+    "playwright", 
+    "e2e",
+    "testing",
+    "cinetech"
+  ],
+  "author": "Ryan Ladmia",
+  "license": "ISC"
+}
