@@ -3,7 +3,7 @@ const { defineConfig } = require('cypress');
 module.exports = defineConfig({
   e2e: {
     // URL de base de votre application
-    baseUrl: 'http://localhost/it-expect',
+    baseUrl: 'http://localhost:8888/it-expect',
     
     // Configuration de la fenêtre
     viewportWidth: 1280,
@@ -64,7 +64,7 @@ module.exports = defineConfig({
     env: {
       // Ajustez selon votre configuration
       environment: 'local',
-      apiUrl: 'http://localhost/it-expect',
+      apiUrl: 'http://localhost:8888/it-expect',
       
       // Données de test
       testUser: {

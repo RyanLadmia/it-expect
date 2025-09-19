@@ -15,8 +15,8 @@
     "test:e2e:dev": "npm run cypress:open"
   },
   "devDependencies": {
-    "cypress": "^13.13.0",
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "cypress": "^13.6.0"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -27,7 +27,7 @@
   },
   "keywords": [
     "cypress",
-    "playwright", 
+    "playwright",
     "e2e",
     "testing",
     "cinetech"

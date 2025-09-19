@@ -30,7 +30,7 @@ module.exports = defineConfig({
   // Configuration globale pour tous les tests
   use: {
     // URL de base
-    baseURL: 'http://localhost/it-expect',
+    baseURL: 'http://localhost:8888/it-expect',
     
     // Trace des actions (pour le débogage)
     trace: 'on-first-retry',

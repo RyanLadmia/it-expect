@@ -95,7 +95,7 @@ Créez un fichier `.env` à la racine du projet :
 
 ```env
 # Configuration de test
-BASE_URL=http://localhost/it-expect
+BASE_URL=http://localhost:8888/it-expect
 TEST_USER_EMAIL=test.e2e@example.com
 TEST_USER_PASSWORD=TestPassword123!
 

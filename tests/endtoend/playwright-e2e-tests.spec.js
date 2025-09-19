@@ -17,7 +17,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/it-expect';
+const BASE_URL = 'http://localhost:8888/it-expect';
 const TEST_USER = {
   firstname: 'Test',
   lastname: 'Playwright',
@@ -27,12 +27,20 @@ const TEST_USER = {
 
 // Configuration globale
 test.beforeEach(async ({ page, context }) => {
-  // Nettoyer les cookies et le stockage
+  // Nettoyer les cookies
   await context.clearCookies();
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
+  
+  // Nettoyer le stockage seulement après avoir navigué vers une page
+  try {
+    await page.goto(BASE_URL);
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+  } catch (error) {
+    // Ignorer les erreurs de localStorage si la page n'est pas encore chargée
+    console.log('Note: localStorage non accessible avant navigation');
+  }
 });
 
 /**
@@ -40,7 +48,7 @@ test.beforeEach(async ({ page, context }) => {
  */
 test.describe('Navigation et Interface', () => {
   test('devrait charger la page d\'accueil avec tous les éléments', async ({ page }) => {
-    await page.goto(BASE_URL);
+    // La page est déjà chargée dans beforeEach
 
     // Vérifier le titre
     await expect(page).toHaveTitle(/Cinetech/);
@@ -59,7 +67,7 @@ test.describe('Navigation et Interface', () => {
   });
 
   test('devrait naviguer entre toutes les pages principales', async ({ page }) => {
-    await page.goto(BASE_URL);
+    // La page est déjà chargée dans beforeEach
 
     // Test navigation vers Films
     await page.click('nav a:has-text("Films")');
@@ -79,7 +87,7 @@ test.describe('Navigation et Interface', () => {
   test('devrait être responsive sur différentes tailles d\'écran', async ({ page }) => {
     // Test desktop
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto(BASE_URL);
+    // La page est déjà chargée dans beforeEach
     await expect(page.locator('nav.navbar')).toBeVisible();
 
     // Test tablette
@@ -491,7 +499,7 @@ async function loginUser(page, email, password) {
  *   workers: process.env.CI ? 1 : undefined,
  *   reporter: 'html',
  *   use: {
- *     baseURL: 'http://localhost/it-expect',
+ *     baseURL: 'http://localhost:8888/it-expect',
  *     trace: 'on-first-retry',
  *     screenshot: 'only-on-failure',
  *     video: 'retain-on-failure',

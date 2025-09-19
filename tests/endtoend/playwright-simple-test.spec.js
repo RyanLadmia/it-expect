@@ -7,7 +7,7 @@
 
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'http://localhost/it-expect';
+const BASE_URL = 'http://localhost:8888/it-expect';
 
 test.describe('Configuration Playwright - Test Simple', () => {
   test('devrait charger la page d\'accueil', async ({ page }) => {
