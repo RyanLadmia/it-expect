@@ -142,3 +142,20 @@ Des corrections peuvent être ajouté pour optimiser davantage la sécurité et 
 
 ![Image n°4](assets/medias/Rapport.png)
 
+
+
+## Terminal : 
+
+### Tests unitaires
+
+![Image n°5](assets/medias/T-unitaire.png)
+
+### Tests d'intégration
+
+![Image n°6](assets/medias/T-integration.png)
+
+
+### Tests fonctionnels 
+
+![Image n°7](assets/medias/T-functional.png)
+
