@@ -64,7 +64,7 @@ class UserRegistrationFunctionalTest extends TestCase
         // ASSERT FONCTIONNEL : Vérifier les données persistées
         $this->assertUserExistsInDatabase($email, $firstname, $lastname);
         
-        fwrite(STDOUT, "✅ Test 1 : Inscription réussie - Utilisateur créé en base");
+        fwrite(STDOUT, "Test 1 : Inscription réussie - Utilisateur créé en base");
     }
 
     /**
@@ -94,7 +94,7 @@ class UserRegistrationFunctionalTest extends TestCase
         // ASSERT FONCTIONNEL : Vérifier qu'un seul utilisateur existe
         $this->assertOnlyOneUserWithEmail($email);
         
-        fwrite(STDOUT, "\n✅ Test 2 : Email existant - Rejet correct et DB cohérente");
+        fwrite(STDOUT, "\nTest 2 : Email existant - Rejet correct et DB cohérente");
     }
 
     /**
@@ -122,7 +122,7 @@ class UserRegistrationFunctionalTest extends TestCase
         $this->assertEquals($firstname, $userData['user_firstname']);
         $this->assertEquals($lastname, $userData['user_lastname']);
         
-        fwrite(STDOUT, "\n✅ Test 3 : Caractères spéciaux - Persistance correcte en DB");
+        fwrite(STDOUT, "\nTest 3 : Caractères spéciaux - Persistance correcte en DB");
     }
 
     /**
@@ -158,7 +158,7 @@ class UserRegistrationFunctionalTest extends TestCase
         // Vérifier le format de la date
         $this->assertMatchesRegularExpression('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $userData['created_at']);
         
-        fwrite(STDOUT, "\n✅ Test 4 : Intégrité des données - Tous les champs corrects en DB");
+        fwrite(STDOUT, "\nTest 4 : Intégrité des données - Tous les champs corrects en DB");
     }
 
     /**
@@ -201,7 +201,7 @@ class UserRegistrationFunctionalTest extends TestCase
             $this->assertTrue($this->modelUser->emailExists("user{$i}.test@example.com"));
         }
         
-        fwrite(STDOUT, "\n✅ Test 5 : Performance - 5 inscriptions en {$executionTime}s");
+        fwrite(STDOUT, "\nTest 5 : Performance - 5 inscriptions en {$executionTime}s");
     }
 
     // ========== MÉTHODES UTILITAIRES POUR TESTS FONCTIONNELS ==========

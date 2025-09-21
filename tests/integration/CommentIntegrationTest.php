@@ -99,7 +99,7 @@ class CommentIntegrationTest extends TestCase
             }
         }
 
-        fwrite(STDOUT, "✅ Test 1 : Intégration ajout → récupération commentaire");
+        fwrite(STDOUT, "Test 1 : Intégration ajout → récupération commentaire");
     }
 
     /**
@@ -133,7 +133,7 @@ class CommentIntegrationTest extends TestCase
         $this->assertFalse($result4['success']);
         $this->assertStringContainsString('Type d\'élément invalide', $result4['message']);
 
-        fwrite(STDOUT, "\n✅ Test 2 : Intégration validations Controller ↔ Model");
+        fwrite(STDOUT, "\nTest 2 : Intégration validations Controller ↔ Model");
     }
 
     /**
@@ -166,7 +166,7 @@ class CommentIntegrationTest extends TestCase
         }
         $this->assertFalse($testCommentFound, "Aucun commentaire ne devrait être créé en cas d'erreur");
 
-        fwrite(STDOUT, "\n✅ Test 3 : Intégration gestion d'erreurs entre couches");
+        fwrite(STDOUT, "\nTest 3 : Intégration gestion d'erreurs entre couches");
     }
 
     /**
@@ -224,7 +224,7 @@ class CommentIntegrationTest extends TestCase
         $this->assertEquals($replyContent, $reply['content']);
         $this->assertEquals($this->testUserId, $reply['user_id']);
 
-        fwrite(STDOUT, "\n✅ Test 4 : Intégration commentaires ↔ réponses complète");
+        fwrite(STDOUT, "\nTest 4 : Intégration commentaires ↔ réponses complète");
     }
 
     /**
@@ -266,7 +266,7 @@ class CommentIntegrationTest extends TestCase
         // ASSERT : L'intégration fonctionne si on peut ajouter et récupérer des commentaires
         $this->assertTrue(count($addedComments) === $commentsToAdd, "Tous les commentaires ont été traités");
 
-        fwrite(STDOUT, "\n✅ Test 5 : Intégration cohérence données multiples");
+        fwrite(STDOUT, "\nTest 5 : Intégration cohérence données multiples");
     }
 
     // ========== MÉTHODES UTILITAIRES POUR TESTS D'INTÉGRATION ==========
