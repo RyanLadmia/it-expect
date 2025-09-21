@@ -5,7 +5,7 @@
  * Basée sur la logique qui fonctionne dans cypress-fixed-auth-tests.cy.js
  */
 
-describe('🎉 Cinetech - Tests Finaux Corrigés', () => {
+describe('Cinetech - Tests Finaux Corrigés', () => {
   const baseUrl = 'http://localhost:8888/it-expect';
   
   const testUser = {

@@ -159,3 +159,12 @@ Des corrections peuvent être ajouté pour optimiser davantage la sécurité et 
 
 ![Image n°7](assets/medias/T-functional.png)
 
+### Tests E2E :
+
+![Image n°8](assets/medias/1.png)
+![Image n°9](assets/medias/2.png)
+![Image n°10](assets/medias/3.png)
+![Image n°11](assets/medias/4.png)
+![Image n°12](assets/medias/5.png)
+
+

@@ -4,7 +4,7 @@
  * Tests supplémentaires pour une couverture à 100% du code
  */
 
-describe('🚀 Couverture Avancée - Tests Optionnels', () => {
+describe('Couverture Avancée - Tests Optionnels', () => {
   const baseUrl = 'http://localhost:8888/it-expect';
   
   const realUser = {
