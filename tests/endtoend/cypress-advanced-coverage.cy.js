@@ -33,7 +33,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       // Vérifier que l'application reste stable
       cy.url().should('include', 'login');
       cy.get('body').should('be.visible');
-      cy.log('✅ Application résistante aux injections SQL basiques');
+      cy.log('Application résistante aux injections SQL basiques');
     });
 
     it('devrait gérer les tentatives XSS', () => {
@@ -52,7 +52,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       
       // Vérifier qu'aucune alerte ne s'est déclenchée
       cy.get('body').should('be.visible');
-      cy.log('✅ Application résistante aux attaques XSS basiques');
+      cy.log('Application résistante aux attaques XSS basiques');
     });
 
     it('devrait valider les formats d\'email', () => {
@@ -78,9 +78,9 @@ describe('Couverture Avancée - Tests Optionnels', () => {
         // Vérifier que l'inscription échoue ou que l'email est corrigé
         cy.get('body').then($body => {
           if ($body.find('.error-msg').length > 0 || $body.text().includes('email')) {
-            cy.log(`✅ Email invalide rejeté: ${email}`);
+            cy.log(`Email invalide rejeté: ${email}`);
           } else {
-            cy.log(`ℹ️ Email traité: ${email}`);
+            cy.log(`Email traité: ${email}`);
           }
         });
       });
@@ -98,9 +98,9 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       
       cy.get('body').then($body => {
         if ($body.text().includes('404') || $body.text().includes('introuvable')) {
-          cy.log('✅ Gestion d\'erreur API appropriée');
+          cy.log('Gestion d\'erreur API appropriée');
         } else {
-          cy.log('ℹ️ Gestion d\'erreur API à analyser');
+          cy.log('Gestion d\'erreur API à analyser');
         }
       });
     });
@@ -116,7 +116,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
         cy.wait(2000);
         
         cy.get('body').should('be.visible');
-        cy.log(`✅ Contenu ${content.type} chargé: ${content.name}`);
+        cy.log(`Contenu ${content.type} chargé: ${content.name}`);
       });
     });
   });
@@ -140,7 +140,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
         cy.get('body').should('be.visible').then(() => {
           const loadTime = Date.now() - startTime;
           expect(loadTime).to.be.below(5000);
-          cy.log(`✅ Page ${page} chargée en ${loadTime}ms`);
+          cy.log(`Page ${page} chargée en ${loadTime}ms`);
         });
       });
     });
@@ -156,9 +156,9 @@ describe('Couverture Avancée - Tests Optionnels', () => {
         
         cy.get('#suggestion').should('be.visible').then($suggestion => {
           if ($suggestion.text().length > 0) {
-            cy.log(`✅ Résultats trouvés pour: ${term}`);
+            cy.log(`Résultats trouvés pour: ${term}`);
           } else {
-            cy.log(`ℹ️ Aucun résultat pour: ${term}`);
+            cy.log(`Aucun résultat pour: ${term}`);
           }
         });
       });
@@ -184,7 +184,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
         cy.get('main').should('be.visible');
         cy.get('footer').should('be.visible');
         
-        cy.log(`✅ Interface fonctionnelle sur ${viewport.name} (${viewport.width}x${viewport.height})`);
+        cy.log(`Interface fonctionnelle sur ${viewport.name} (${viewport.width}x${viewport.height})`);
       });
     });
 
@@ -203,12 +203,12 @@ describe('Couverture Avancée - Tests Optionnels', () => {
           if (firstFocusable.is('a[href]') || firstFocusable.is('button') || firstFocusable.is('input') || firstFocusable.is('select') || firstFocusable.is('textarea')) {
             cy.wrap(firstFocusable).focus();
             cy.focused().should('be.visible');
-            cy.log(`✅ Navigation clavier fonctionnelle sur ${firstFocusable.prop('tagName').toLowerCase()}`);
+            cy.log(`Navigation clavier fonctionnelle sur ${firstFocusable.prop('tagName').toLowerCase()}`);
           } else {
-            cy.log('ℹ️ Élément focusable détecté mais focus non testé');
+            cy.log('Élément focusable détecté mais focus non testé');
           }
         } else {
-          cy.log('ℹ️ Aucun élément focusable détecté');
+          cy.log('Aucun élément focusable détecté');
         }
       });
       
@@ -216,21 +216,21 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       cy.get('nav a[href]').first().then($link => {
         if ($link.length > 0) {
           cy.wrap($link).should('be.visible');
-          cy.log('✅ Liens de navigation accessibles');
+          cy.log('Liens de navigation accessibles');
         }
       });
       
       // Test des contrastes (basique)
       cy.get('header').should('have.css', 'background-color');
       cy.get('nav a').should('have.css', 'color');
-      cy.log('✅ Styles CSS appliqués correctement');
+      cy.log('Styles CSS appliqués correctement');
       
       // Test des rôles ARIA (si présents)
       cy.get('nav').then($nav => {
         if ($nav.attr('role')) {
-          cy.log(`✅ Rôle ARIA détecté: ${$nav.attr('role')}`);
+          cy.log(`Rôle ARIA détecté: ${$nav.attr('role')}`);
         } else {
-          cy.log('ℹ️ Aucun rôle ARIA sur la navigation');
+          cy.log('Aucun rôle ARIA sur la navigation');
         }
       });
       
@@ -238,18 +238,18 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       cy.get('img').each($img => {
         cy.wrap($img).should('have.attr', 'alt');
       });
-      cy.log('✅ Images avec attributs alt vérifiées');
+      cy.log('Images avec attributs alt vérifiées');
       
       // Test final : vérifier l'accessibilité générale
       cy.get('input[type="text"], input[type="email"], input[type="password"]').then($inputs => {
         if ($inputs.length > 0) {
-          cy.log(`✅ ${$inputs.length} champs de saisie détectés`);
+          cy.log(`${$inputs.length} champs de saisie détectés`);
         }
       });
       
       cy.get('button, input[type="submit"]').then($buttons => {
         if ($buttons.length > 0) {
-          cy.log(`✅ ${$buttons.length} boutons détectés`);
+          cy.log(`${$buttons.length} boutons détectés`);
         }
       });
     });
@@ -268,7 +268,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       cy.wait(3000);
       
       cy.get('#suggestion').should('be.visible');
-      cy.log('✅ Application robuste avec connexions lentes');
+      cy.log('Application robuste avec connexions lentes');
     });
 
     it('devrait gérer les erreurs de réseau', () => {
@@ -282,7 +282,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       
       // Vérifier que l'application ne plante pas
       cy.get('body').should('be.visible');
-      cy.log('✅ Application robuste face aux erreurs réseau');
+      cy.log('Application robuste face aux erreurs réseau');
     });
 
     it('devrait tester les limites des formulaires', () => {
@@ -300,7 +300,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       cy.get('#register-form input[type="submit"]').click();
       
       cy.get('body').should('be.visible');
-      cy.log('✅ Formulaires robustes avec données longues');
+      cy.log('Formulaires robustes avec données longues');
     });
   });
 
@@ -326,7 +326,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       cy.get('body').then($body => {
         if ($body.find('textarea[name="content"]').length > 0) {
           cy.get('textarea[name="content"]').type('Test commentaire');
-          cy.log('✅ Interface commentaire accessible');
+          cy.log('Interface commentaire accessible');
         }
       });
       
@@ -343,7 +343,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
           // 5. Profil
           cy.visit(`${baseUrl}?r=profile`);
           cy.get('body').should('be.visible');
-          cy.log('✅ Parcours utilisateur complet réussi');
+          cy.log('Parcours utilisateur complet réussi');
         }
       });
     });
@@ -369,7 +369,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
         
         cy.wait(1000);
         cy.get('body').should('be.visible');
-        cy.log(`✅ Transition ${nav.from} → ${nav.to} réussie`);
+        cy.log(`Transition ${nav.from} → ${nav.to} réussie`);
       });
     });
   });
@@ -379,21 +379,21 @@ describe('Couverture Avancée - Tests Optionnels', () => {
    */
   describe('Résumé de Couverture', () => {
     it('devrait afficher un résumé complet de la couverture', () => {
-      cy.log('🎉 COUVERTURE COMPLÈTE ATTEINTE !');
+      cy.log('COUVERTURE COMPLÈTE ATTEINTE !');
       cy.log('');
-      cy.log('✅ Navigation et Structure : 100%');
-      cy.log('✅ Authentification : 100%');
-      cy.log('✅ Gestion des Utilisateurs : 100%');
-      cy.log('✅ Favoris et Commentaires : 100%');
-      cy.log('✅ Recherche et API : 100%');
-      cy.log('✅ Responsive Design : 100%');
-      cy.log('✅ Performance : 100%');
-      cy.log('✅ Accessibilité : 100%');
-      cy.log('✅ Sécurité de base : 100%');
-      cy.log('✅ Robustesse : 100%');
+      cy.log('Navigation et Structure : 100%');
+      cy.log('Authentification : 100%');
+      cy.log('Gestion des Utilisateurs : 100%');
+      cy.log('Favoris et Commentaires : 100%');
+      cy.log('Recherche et API : 100%');
+      cy.log('Responsive Design : 100%');
+      cy.log('Performance : 100%');
+      cy.log('Accessibilité : 100%');
+      cy.log('Sécurité de base : 100%');
+      cy.log('Robustesse : 100%');
       cy.log('');
-      cy.log('🚀 TOTAL : 100% DE COUVERTURE E2E !');
-      cy.log('🎬 Votre application Cinetech est parfaitement testée !');
+      cy.log('TOTAL : 100% DE COUVERTURE E2E !');
+      cy.log('Votre application Cinetech est parfaitement testée !');
       
       // Test symbolique final
       cy.visit(baseUrl);

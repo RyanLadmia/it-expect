@@ -103,13 +103,13 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       // Vérifier le résultat de l'inscription (flexible)
       cy.get('body').then($body => {
         if ($body.find('.success, #success-message-wrapper').length > 0) {
-          cy.log('✅ Inscription réussie - message de succès affiché');
+          cy.log('Inscription réussie - message de succès affiché');
         } else if ($body.find('.error-msg').length > 0) {
-          cy.log('ℹ️ Inscription échouée - utilisateur existe probablement déjà');
+          cy.log('Inscription échouée - utilisateur existe probablement déjà');
         } else if ($body.find('#show-login-from-success').length > 0) {
-          cy.log('✅ Inscription réussie - lien vers connexion affiché');
+          cy.log('Inscription réussie - lien vers connexion affiché');
         } else {
-          cy.log('ℹ️ Résultat inscription indéterminé - formulaire soumis');
+          cy.log('Résultat inscription indéterminé - formulaire soumis');
         }
       });
     });
@@ -127,16 +127,16 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       cy.wait(2000);
       cy.url().then(url => {
         if (url.includes('home')) {
-          cy.log('✅ Connexion réussie - redirigé vers home');
+          cy.log('Connexion réussie - redirigé vers home');
           cy.get('button.deco').should('be.visible');
         } else if (url.includes('profile')) {
-          cy.log('✅ Connexion réussie - redirigé vers profil');
+          cy.log('Connexion réussie - redirigé vers profil');
           cy.get('button.deco').should('be.visible');
         } else if (!url.includes('login')) {
-          cy.log('✅ Connexion réussie - redirigé vers page protégée');
+          cy.log('Connexion réussie - redirigé vers page protégée');
           cy.get('button.deco').should('be.visible');
         } else {
-          cy.log('⚠️ Connexion échouée - utilisateur test inexistant');
+          cy.log('Connexion échouée - utilisateur test inexistant');
         }
       });
     });
@@ -153,11 +153,11 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       // Vérifier le résultat de la connexion échouée (flexible)
       cy.get('body').then($body => {
         if ($body.find('.error-msg, .error').length > 0) {
-          cy.log('✅ Message d\'erreur affiché correctement');
+          cy.log('Message d\'erreur affiché correctement');
         } else if ($body.text().includes('Connexion') && $body.find('#login-form').length > 0) {
-          cy.log('ℹ️ Reste sur la page de connexion (comportement attendu pour erreur)');
+          cy.log('Reste sur la page de connexion (comportement attendu pour erreur)');
         } else {
-          cy.log('ℹ️ Comportement d\'erreur de connexion à analyser');
+          cy.log('Comportement d\'erreur de connexion à analyser');
         }
         
         cy.url().should('include', 'login');
@@ -169,17 +169,17 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('button.deco[type="submit"][name="logout"]').length > 0) {
-          cy.log('✅ Utilisateur connecté - test de déconnexion');
+          cy.log('Utilisateur connecté - test de déconnexion');
           cy.get('button.deco[type="submit"][name="logout"]').click();
           cy.url().should('include', 'login');
           cy.get('button.co').should('be.visible');
-          cy.log('✅ Déconnexion réussie');
+          cy.log('Déconnexion réussie');
         } else if ($body.find('button.co').length > 0) {
-          cy.log('ℹ️ Utilisateur déjà déconnecté - bouton connexion visible');
+          cy.log('Utilisateur déjà déconnecté - bouton connexion visible');
           cy.get('button.co a').click();
           cy.url().should('include', 'login');
         } else {
-          cy.log('ℹ️ État d\'authentification indéterminé');
+          cy.log('État d\'authentification indéterminé');
         }
       });
     });
@@ -194,9 +194,9 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h1:contains("Connexion")').length > 0) {
-          cy.log('ℹ️ Redirection vers login - session expirée ou utilisateur inexistant');
+          cy.log('Redirection vers login - session expirée ou utilisateur inexistant');
         } else if ($body.find('h2, .profile-info, #user_firstname').length > 0) {
-          cy.log('✅ Page profil accessible');
+          cy.log('Page profil accessible');
           
           // Tests conditionnels des éléments du profil
           if ($body.find('#user_firstname').length > 0) {
@@ -209,7 +209,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
             cy.get('#user_email').should('be.visible');
           }
         } else {
-          cy.log('ℹ️ Page profil avec structure différente');
+          cy.log('Page profil avec structure différente');
         }
       });
     });
@@ -219,21 +219,21 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h1:contains("Connexion")').length > 0) {
-          cy.log('ℹ️ Redirection vers login - test de modification non applicable');
+          cy.log('Redirection vers login - test de modification non applicable');
         } else if ($body.find('#edit_button, .edit-btn, button:contains("Modifier")').length > 0) {
-          cy.log('✅ Bouton de modification trouvé');
+          cy.log('Bouton de modification trouvé');
           cy.get('#edit_button, .edit-btn, button:contains("Modifier")').first().click();
           
           cy.wait(1000);
           cy.get('body').then($bodyAfter => {
             if ($bodyAfter.find('#update_form, .update-form, form').length > 0) {
-              cy.log('✅ Formulaire de modification accessible');
+              cy.log('Formulaire de modification accessible');
             } else {
-              cy.log('ℹ️ Structure de modification différente');
+              cy.log('Structure de modification différente');
             }
           });
         } else {
-          cy.log('ℹ️ Page profil sans fonctionnalité de modification visible');
+          cy.log('Page profil sans fonctionnalité de modification visible');
         }
       });
     });
@@ -243,12 +243,12 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h1:contains("Connexion")').length > 0) {
-          cy.log('ℹ️ Redirection vers login - test de suppression non applicable');
+          cy.log('Redirection vers login - test de suppression non applicable');
         } else if ($body.find('#delete_account_button, .delete-btn, button:contains("Supprimer")').length > 0) {
-          cy.log('✅ Bouton de suppression trouvé');
-          cy.log('ℹ️ Test de suppression simulé (compte préservé)');
+          cy.log('Bouton de suppression trouvé');
+          cy.log('Test de suppression simulé (compte préservé)');
         } else {
-          cy.log('ℹ️ Page profil sans fonctionnalité de suppression visible');
+          cy.log('Page profil sans fonctionnalité de suppression visible');
         }
       });
     });
@@ -263,19 +263,19 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h1:contains("Connexion")').length > 0) {
-          cy.log('ℹ️ Redirection vers login - session expirée');
+          cy.log('Redirection vers login - session expirée');
         } else if ($body.find('h1:contains("Favoris"), h1:contains("Mes Favoris")').length > 0) {
-          cy.log('✅ Page favoris accessible');
+          cy.log('Page favoris accessible');
           
           if ($body.find('#favoritesList, .favorites-list, .favorite-item').length > 0) {
-            cy.log('✅ Liste de favoris trouvée');
+            cy.log('Liste de favoris trouvée');
           } else if ($body.find('.no_favorite, .no-favorites').length > 0 || $body.text().includes('aucun favori')) {
-            cy.log('ℹ️ Aucun favori - message approprié affiché');
+            cy.log('Aucun favori - message approprié affiché');
           } else {
-            cy.log('ℹ️ Page favoris chargée (structure à analyser)');
+            cy.log('Page favoris chargée (structure à analyser)');
           }
         } else {
-          cy.log('ℹ️ Page favoris avec structure inconnue');
+          cy.log('Page favoris avec structure inconnue');
         }
       });
     });
@@ -289,11 +289,11 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
         
         if (favoriteBtn.length > 0) {
           cy.wrap(favoriteBtn.first()).click();
-          cy.log('✅ Bouton favori cliqué');
+          cy.log('Bouton favori cliqué');
           cy.wait(1000);
-          cy.log('ℹ️ Action favori exécutée');
+          cy.log('Action favori exécutée');
         } else {
-          cy.log('ℹ️ Aucun bouton favori trouvé sur cette page');
+          cy.log('Aucun bouton favori trouvé sur cette page');
         }
       });
     });
@@ -315,12 +315,12 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
                 cy.get('.confirm-yes, .ok').click();
               }
             });
-            cy.log('✅ Action de suppression de favori exécutée');
+            cy.log('Action de suppression de favori exécutée');
           } else {
-            cy.log('ℹ️ Bouton de suppression non trouvé');
+            cy.log('Bouton de suppression non trouvé');
           }
         } else {
-          cy.log('ℹ️ Aucun favori à supprimer sur cette page');
+          cy.log('Aucun favori à supprimer sur cette page');
         }
       });
     });
@@ -341,12 +341,12 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
           
           if ($body.find('button[type="submit"]:contains("Commenter")').length > 0) {
             cy.get('button[type="submit"]:contains("Commenter")').click();
-            cy.log('✅ Commentaire soumis');
+            cy.log('Commentaire soumis');
           } else {
-            cy.log('ℹ️ Bouton de soumission non trouvé');
+            cy.log('Bouton de soumission non trouvé');
           }
         } else {
-          cy.log('ℹ️ Zone de commentaire non trouvée sur cette page');
+          cy.log('Zone de commentaire non trouvée sur cette page');
         }
       });
     });
@@ -368,12 +368,12 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
                 cy.get('.confirm-delete, .confirm-yes').click();
               }
             });
-            cy.log('✅ Action de suppression de commentaire exécutée');
+            cy.log('Action de suppression de commentaire exécutée');
           } else {
-            cy.log('ℹ️ Bouton de suppression de commentaire non trouvé');
+            cy.log('Bouton de suppression de commentaire non trouvé');
           }
         } else {
-          cy.log('ℹ️ Aucun commentaire à supprimer sur cette page');
+          cy.log('Aucun commentaire à supprimer sur cette page');
         }
       });
     });
@@ -424,7 +424,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       cy.get('#password').type(realUser.password);
       cy.get('#password_confirm').type(realUser.password);
       
-      cy.log('✅ Workflow inscription : formulaire rempli correctement');
+      cy.log('Workflow inscription : formulaire rempli correctement');
       
       cy.get('#show-login').click();
       cy.get('#login-form').should('be.visible');
@@ -432,7 +432,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       cy.get('#email_login').type(realUser.email);
       cy.get('#password_login').type(realUser.password);
       
-      cy.log('✅ Workflow connexion : formulaire de connexion prêt');
+      cy.log('Workflow connexion : formulaire de connexion prêt');
       
       cy.visit(baseUrl);
       cy.get('nav a').contains('Films').click();
@@ -441,7 +441,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       cy.get('nav a').contains('Séries').click();
       cy.url().should('include', 'serie');
       
-      cy.log('✅ Workflow navigation : parcours utilisateur complet');
+      cy.log('Workflow navigation : parcours utilisateur complet');
     });
 
     it('devrait permettre la recherche et l\'interaction avec les résultats', () => {
@@ -454,7 +454,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('#search').clear().type('Avengers');
       cy.get('#suggestion').should('be.visible');
-      cy.log('✅ Workflow recherche : fonctionnel avec suggestions');
+      cy.log('Workflow recherche : fonctionnel avec suggestions');
     });
 
     it('devrait gérer les interactions avec les films/séries', () => {
@@ -467,13 +467,13 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       cy.title().should('include', 'Séries');
       
       cy.wait(2000);
-      cy.log('✅ Workflow contenu : pages films et séries chargent');
+      cy.log('Workflow contenu : pages films et séries chargent');
     });
 
     it('devrait tester les interactions avec les détails (si disponibles)', () => {
       cy.visit(`${baseUrl}?r=detail&id=12345&type=movie`, { failOnStatusCode: false });
       cy.get('body').should('be.visible');
-      cy.log('✅ Page de détail trouvée');
+      cy.log('Page de détail trouvée');
     });
   });
 
@@ -486,7 +486,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       cy.get('#email_login').clear().type(realUser.email);
       cy.get('#password_login').clear().type(realUser.password);
       
-      cy.log('🔑 Formulaire de connexion prêt pour test manuel');
+      cy.log('Formulaire de connexion prêt pour test manuel');
       cy.get('#login-form input[type="submit"]').should('be.visible');
     });
 
@@ -495,14 +495,14 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h2:contains("Bienvenue")').length > 0) {
-          cy.log('✅ Utilisateur connecté - page profil accessible');
+          cy.log('Utilisateur connecté - page profil accessible');
           cy.get('#user_firstname').should('be.visible');
           cy.get('#user_lastname').should('be.visible');
           cy.get('#user_email').should('be.visible');
         } else if ($body.find('h1:contains("Connexion")').length > 0) {
-          cy.log('ℹ️ Redirection vers login - authentification requise (normal)');
+          cy.log('Redirection vers login - authentification requise (normal)');
         } else {
-          cy.log('ℹ️ État d\'authentification indéterminé');
+          cy.log('État d\'authentification indéterminé');
         }
       });
     });
@@ -512,20 +512,20 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h1:contains("Mes Favoris")').length > 0) {
-          cy.log('✅ Page favoris accessible');
+          cy.log('Page favoris accessible');
           
           const hasFavorites = $body.find('.favorite-item, #favoritesList').length > 0;
           const hasNoFavoritesMsg = $body.find('.no_favorite').length > 0;
           
           if (hasFavorites) {
-            cy.log('✅ Favoris trouvés sur la page');
+            cy.log('Favoris trouvés sur la page');
           } else if (hasNoFavoritesMsg) {
-            cy.log('ℹ️ Aucun favori - message approprié affiché');
+            cy.log('Aucun favori - message approprié affiché');
           } else {
-            cy.log('ℹ️ Structure de favoris à déterminer');
+            cy.log('Structure de favoris à déterminer');
           }
         } else if ($body.find('h1:contains("Connexion")').length > 0) {
-          cy.log('ℹ️ Redirection vers login pour favoris (normal)');
+          cy.log('Redirection vers login pour favoris (normal)');
         }
       });
     });
@@ -538,26 +538,26 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
       
       cy.get('body').then($body => {
         if ($body.find('h1, h2, .movie-title').length > 0) {
-          cy.log('✅ Page de détail chargée avec contenu');
+          cy.log('Page de détail chargée avec contenu');
           
           const hasCommentSection = $body.find('textarea[name="content"], .comment-form').length > 0;
           const hasFavoriteButton = $body.find('button:contains("favori"), .favorite-btn').length > 0;
           const hasComments = $body.find('.comment, .comments-section').length > 0;
           
           if (hasCommentSection) {
-            cy.log('✅ Section commentaires trouvée');
+            cy.log('Section commentaires trouvée');
             cy.get('textarea[name="content"]').should('be.visible');
           }
           
           if (hasFavoriteButton) {
-            cy.log('✅ Bouton favoris trouvé');
+            cy.log('Bouton favoris trouvé');
           }
           
           if (hasComments) {
-            cy.log('✅ Commentaires existants trouvés');
+            cy.log('Commentaires existants trouvés');
           }
         } else {
-          cy.log('ℹ️ Page de détail vide ou ID inexistant');
+          cy.log('Page de détail vide ou ID inexistant');
         }
       });
     });
@@ -588,7 +588,7 @@ describe('Cinetech - Tests Finaux Corrigés', () => {
         const isAccessible = hasPlaceholder || hasAriaLabel || hasLabel;
         
         if (!isAccessible && $input.attr('type') !== 'hidden') {
-          cy.log(`⚠️ Input potentiellement inaccessible: ${$input.attr('name') || $input.attr('id') || 'unknown'}`);
+          cy.log(`Input potentiellement inaccessible: ${$input.attr('name') || $input.attr('id') || 'unknown'}`);
         }
       });
       
