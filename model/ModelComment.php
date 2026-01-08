@@ -80,7 +80,7 @@ class ModelComment
                 // Récupérer les infos utilisateur
                 $userStmt = $this->connexion->prepare("
                     SELECT user_firstname, user_lastname
-                    FROM Users
+                    FROM users
                     WHERE user_id = :user_id
                 ");
                 $userStmt->execute([':user_id' => $comment['user_id']]);
@@ -137,7 +137,7 @@ class ModelComment
         $stmt = $this->connexion->prepare("
             SELECT r.reply_id, r.content, r.created_at, u.user_firstname, u.user_lastname, u.user_id
             FROM replies r
-            JOIN Users u ON r.user_id = u.user_id
+            JOIN users u ON r.user_id = u.user_id
             WHERE r.comment_id = :comment_id
             ORDER BY r.created_at ASC
         ");
