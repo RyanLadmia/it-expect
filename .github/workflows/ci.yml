@@ -115,7 +115,7 @@ jobs:
           cat /tmp/php-server.log || true
           exit 1
 
-      # Cypress E2E
+      # Cypress E2E tests
       - name: Run Cypress tests
         if: hashFiles('cypress.config.js') != ''
         run: npx cypress run
