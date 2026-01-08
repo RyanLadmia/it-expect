@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   tests:
+    name: Full tests
     runs-on: ubuntu-latest
 
     services:
