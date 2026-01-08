@@ -70,28 +70,56 @@ class myAutoload
 
     public static function autoload($class)
     {
-        if(file_exists(MODEL . $class . '.php'))
-        {
-            include_once MODEL . $class . '.php';
-        } 
+        // Fonction helper pour trouver un fichier insensible à la casse
+        $findFile = function($directory, $className) {
+            $expectedFile = $directory . $className . '.php';
+            if (file_exists($expectedFile)) {
+                return $expectedFile;
+            }
+            
+            // Si le fichier n'existe pas avec le nom exact, chercher insensible à la casse
+            if (is_dir($directory)) {
+                $files = scandir($directory);
+                foreach ($files as $file) {
+                    if ($file !== '.' && $file !== '..' && 
+                        strtolower($file) === strtolower($className . '.php')) {
+                        return $directory . $file;
+                    }
+                }
+            }
+            return null;
+        };
         
-        elseif (file_exists(CLASSES . $class . '.php'))
-        {
-            include_once CLASSES . $class . '.php';
-        } 
-
-        elseif (file_exists(CONTROLLER . $class . '.php'))
-        {
-            include_once CONTROLLER . $class . '.php';
+        // Chercher dans MODEL
+        $file = $findFile(MODEL, $class);
+        if ($file) {
+            include_once $file;
+            return;
         }
-        elseif (file_exists(CONFIG . $class . '.php'))
-        {
-            include_once CONFIG . $class . '.php';
+        
+        // Chercher dans CLASSES
+        $file = $findFile(CLASSES, $class);
+        if ($file) {
+            include_once $file;
+            return;
         }
-        else 
-        {
-            throw new Exception("Class $class not found.");
+        
+        // Chercher dans CONTROLLER
+        $file = $findFile(CONTROLLER, $class);
+        if ($file) {
+            include_once $file;
+            return;
         }
+        
+        // Chercher dans CONFIG
+        $file = $findFile(CONFIG, $class);
+        if ($file) {
+            include_once $file;
+            return;
+        }
+        
+        // Si aucun fichier trouvé
+        throw new Exception("Class $class not found. Searched in: " . MODEL . ", " . CLASSES . ", " . CONTROLLER . ", " . CONFIG);
     }
 }
 ?>
