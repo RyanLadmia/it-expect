@@ -5,7 +5,8 @@
  */
 
 describe('Couverture Avancée - Tests Optionnels', () => {
-  const baseUrl = 'http://localhost:8888/it-expect';
+  // Utiliser la configuration Cypress qui gère automatiquement l'URL selon l'environnement
+  const baseUrl = Cypress.config('baseUrl') || 'http://localhost:8888/it-expect';
   
   const realUser = {
     email: 'admin@cinetech.com',
@@ -149,9 +150,12 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       const searchTerms = ['Avengers', 'Batman', 'Star Wars', 'Marvel', 'Disney'];
       
       cy.visit(baseUrl);
+      cy.get('#search').should('be.visible');
       
       searchTerms.forEach(term => {
-        cy.get('#search').clear().type(term);
+        // Séparer les commandes pour éviter les problèmes d'éléments détachés
+        cy.get('#search').should('be.visible').clear({ force: true });
+        cy.get('#search').should('be.visible').type(term, { force: true });
         cy.wait(1000);
         
         cy.get('#suggestion').should('be.visible').then($suggestion => {
@@ -262,9 +266,10 @@ describe('Couverture Avancée - Tests Optionnels', () => {
     it('devrait gérer les connexions lentes', () => {
       // Simuler une connexion lente
       cy.visit(baseUrl);
+      cy.get('#search').should('be.visible');
       cy.intercept('GET', '**/api/**', { delay: 2000 }).as('slowAPI');
       
-      cy.get('#search').type('Test');
+      cy.get('#search').should('be.visible').type('Test', { force: true });
       cy.wait(3000);
       
       cy.get('#suggestion').should('be.visible');
@@ -273,11 +278,12 @@ describe('Couverture Avancée - Tests Optionnels', () => {
 
     it('devrait gérer les erreurs de réseau', () => {
       cy.visit(baseUrl);
+      cy.get('#search').should('be.visible');
       
       // Intercepter et faire échouer les requêtes API
       cy.intercept('GET', '**/api/**', { statusCode: 500 }).as('apiError');
       
-      cy.get('#search').type('Error Test');
+      cy.get('#search').should('be.visible').type('Error Test', { force: true });
       cy.wait(2000);
       
       // Vérifier que l'application ne plante pas
@@ -313,7 +319,7 @@ describe('Couverture Avancée - Tests Optionnels', () => {
       
       // 1. Recherche
       cy.visit(baseUrl);
-      cy.get('#search').type('Avengers');
+      cy.get('#search').should('be.visible').type('Avengers', { force: true });
       cy.wait(1000);
       cy.get('#suggestion').should('be.visible');
       

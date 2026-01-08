@@ -121,6 +121,7 @@ jobs:
         run: npx cypress run
         env:
           CI: true
+          baseUrl: http://localhost:8888
           DB_HOST: 127.0.0.1
           DB_NAME: cinetech
           DB_USER: test_user
