@@ -99,17 +99,28 @@ jobs:
       - name: Start PHP server
         if: hashFiles('cypress.config.js') != ''
         run: |
-          php -S localhost:8888 -t . > /dev/null 2>&1 &
+          php -S localhost:8888 router.php > /tmp/php-server.log 2>&1 &
           echo $! > /tmp/php-server.pid
-          sleep 3
-          curl -f http://localhost:8888/it-expect/ || exit 1
-          echo "PHP server is ready!"
+          sleep 5
+          # Tester plusieurs fois car le serveur peut prendre du temps à démarrer
+          for i in {1..10}; do
+            if curl -f http://localhost:8888/?r=home > /dev/null 2>&1; then
+              echo "PHP server is ready!"
+              exit 0
+            fi
+            echo "Waiting for server... ($i/10)"
+            sleep 2
+          done
+          echo "Server logs:"
+          cat /tmp/php-server.log || true
+          exit 1
 
       # Cypress E2E
       - name: Run Cypress tests
         if: hashFiles('cypress.config.js') != ''
         run: npx cypress run
         env:
+          CI: true
           DB_HOST: 127.0.0.1
           DB_NAME: cinetech
           DB_USER: test_user

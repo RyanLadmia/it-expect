@@ -3,7 +3,8 @@ const { defineConfig } = require('cypress');
 module.exports = defineConfig({
   e2e: {
     // URL de base de votre application
-    baseUrl: 'http://localhost:8888/it-expect',
+    // En CI/CD, le serveur PHP intégré sert directement depuis le répertoire du projet
+    baseUrl: process.env.CI ? 'http://localhost:8888' : 'http://localhost:8888/it-expect',
     
     // Configuration de la fenêtre
     viewportWidth: 1280,

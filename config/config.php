@@ -8,10 +8,23 @@ class myAutoload
 
         $root = $_SERVER['DOCUMENT_ROOT'];
         $host = $_SERVER['HTTP_HOST'];
-
-        define('HOST', 'http://' . $host . '/it-expect/');
-        define('ROOT', $root . '/it-expect/');
-        define('BASE_URL', '/it-expect/'); 
+        
+        // Détecter si on utilise le serveur PHP intégré (CI/CD ou développement local)
+        // Si DOCUMENT_ROOT ne contient pas '/it-expect/', on est probablement dans un environnement CI
+        $isBuiltInServer = (strpos($root, '/it-expect') === false && strpos(__DIR__, '/it-expect') !== false);
+        
+        if ($isBuiltInServer) {
+            // Utiliser le répertoire du projet comme ROOT
+            $projectRoot = dirname(__DIR__);
+            define('ROOT', $projectRoot . '/');
+            define('HOST', 'http://' . $host . '/');
+            define('BASE_URL', '/');
+        } else {
+            // Configuration normale (Apache/MAMP)
+            define('HOST', 'http://' . $host . '/it-expect/');
+            define('ROOT', $root . '/it-expect/');
+            define('BASE_URL', '/it-expect/');
+        } 
 
         define('CONTROLLER', ROOT . 'controller/');
         define('VIEW', ROOT . 'view/');
