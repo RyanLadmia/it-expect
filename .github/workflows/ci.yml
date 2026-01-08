@@ -1,0 +1,96 @@
+name: CI
+
+on: 
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: cinetech
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # JS
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install JS dependencies
+        if: hashFiles('package.json') != ''
+        run: npm ci
+
+      - name: Lint JS
+        if: hashFiles('.eslintrc*') != ''
+        run: npx eslint .
+
+      # PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4.12'
+          extensions: pdo, pdo_mysql, mbstring
+
+      - name: PHP syntax check
+        run: find . -name "*.php" -exec php -l {} \;
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # Base de données
+      - name: Wait for MySQL
+        run: |
+          while ! mysqladmin ping -h127.0.0.1 -P3306 -uroot -proot --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+          echo "MySQL is ready!"
+
+      - name: Import database schema
+        run: |
+          mysql -h127.0.0.1 -P3306 -uroot -proot cinetech < config/cinetech.sql || true
+
+      - name: Create .env file for tests
+        run: |
+          cat > .env << EOF
+          DB_HOST=127.0.0.1
+          DB_NAME=cinetech
+          DB_USER=test_user
+          DB_PASS=test_password
+          DB_PORT=3306
+          EOF
+
+      - name: Run PHPUnit
+        if: hashFiles('phpunit.xml') != ''
+        run: vendor/bin/phpunit
+        env:
+          DB_HOST: 127.0.0.1
+          DB_NAME: cinetech
+          DB_USER: test_user
+          DB_PASS: test_password
+          DB_PORT: 3306
