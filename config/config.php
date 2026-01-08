@@ -10,13 +10,25 @@ class myAutoload
         $host = $_SERVER['HTTP_HOST'];
         
         // Détecter si on utilise le serveur PHP intégré (CI/CD ou développement local)
-        // Si DOCUMENT_ROOT ne contient pas '/it-expect/', on est probablement dans un environnement CI
-        $isBuiltInServer = (strpos($root, '/it-expect') === false && strpos(__DIR__, '/it-expect') !== false);
+        // Le serveur PHP intégré définit DOCUMENT_ROOT au répertoire courant
+        $projectDir = dirname(__DIR__); // Répertoire du projet (parent de config/)
+        
+        // Normaliser les chemins pour comparaison
+        $normalizedRoot = realpath($root) ?: $root;
+        $normalizedProject = realpath($projectDir) ?: $projectDir;
+        
+        // Détecter le serveur intégré : DOCUMENT_ROOT correspond au répertoire du projet
+        // ou si DOCUMENT_ROOT ne contient pas 'it-expect' mais le projet si
+        $isBuiltInServer = (
+            $normalizedRoot === $normalizedProject ||
+            (strpos($normalizedRoot, '/it-expect') === false && strpos($normalizedProject, '/it-expect') !== false) ||
+            $root === '.' ||
+            $root === $projectDir
+        );
         
         if ($isBuiltInServer) {
             // Utiliser le répertoire du projet comme ROOT
-            $projectRoot = dirname(__DIR__);
-            define('ROOT', $projectRoot . '/');
+            define('ROOT', $projectDir . '/');
             define('HOST', 'http://' . $host . '/');
             define('BASE_URL', '/');
         } else {
