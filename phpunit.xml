@@ -15,6 +15,9 @@
         <testsuite name="Integration">
             <directory>tests/integration</directory>
         </testsuite>
+        <testsuite name="Functionnal">
+            <directory>tests/functional</directory>
+        </testsuite>
         <testsuite name="EndToEnd">
             <directory>tests/endtoend</directory>
         </testsuite>

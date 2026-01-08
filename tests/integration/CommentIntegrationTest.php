@@ -98,7 +98,7 @@ class CommentIntegrationTest extends TestCase
                 $this->testCommentsToCleanup[] = $comment['comment_id'];
             }
         }
-
+        fwrite(STDOUT, "\n\nTest d'intégration : CommentIntegrationTest.php\n");
         fwrite(STDOUT, "Test 1 : Intégration ajout → récupération commentaire");
     }
 

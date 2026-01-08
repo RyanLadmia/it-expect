@@ -64,6 +64,7 @@ class UserRegistrationFunctionalTest extends TestCase
         // ASSERT FONCTIONNEL : Vérifier les données persistées
         $this->assertUserExistsInDatabase($email, $firstname, $lastname);
         
+        fwrite(STDOUT, "\n\nTests fonctionnel UserRegistrationFunctionnalTest.php\n");
         fwrite(STDOUT, "Test 1 : Inscription réussie - Utilisateur créé en base");
     }
 
