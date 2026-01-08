@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Vérifier que la page contient des favoris avant d'exécuter le script
+    const favoritesContainer = document.querySelector('.favorites-container');
+    if (!favoritesContainer) {
+        // Si la page ne contient pas de favoris, ne pas exécuter le script
+        return;
+    }
+    
     // Fonction pour afficher un message d'erreur
     function showError(container, message) {
         if (container) {
@@ -156,7 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Erreur de configuration API:', error);
-            document.querySelector('.favorites-container').innerHTML = 
-                `<div class="error-message">Erreur de configuration API. Impossible de charger les favoris.</div>`;
+            const favoritesContainer = document.querySelector('.favorites-container');
+            if (favoritesContainer) {
+                favoritesContainer.innerHTML = 
+                    `<div class="error-message">Erreur de configuration API. Impossible de charger les favoris.</div>`;
+            }
         });
 });
