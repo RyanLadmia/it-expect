@@ -1,0 +1,30 @@
+{
+  "testUser": {
+    "firstname": "Test",
+    "lastname": "Cypress",
+    "email": "test.cypress@example.com",
+    "password": "TestPassword123!",
+    "confirmPassword": "TestPassword123!"
+  },
+  "adminUser": {
+    "firstname": "Admin",
+    "lastname": "Cypress",
+    "email": "admin.cypress@example.com",
+    "password": "AdminPassword123!",
+    "confirmPassword": "AdminPassword123!"
+  },
+  "invalidUser": {
+    "firstname": "",
+    "lastname": "",
+    "email": "invalid-email",
+    "password": "123",
+    "confirmPassword": "456"
+  },
+  "existingUser": {
+    "firstname": "Existing",
+    "lastname": "User",
+    "email": "existing@example.com",
+    "password": "ExistingPassword123!",
+    "confirmPassword": "ExistingPassword123!"
+  }
+}

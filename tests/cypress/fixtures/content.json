@@ -1,0 +1,54 @@
+{
+  "movies": [
+    {
+      "id": 12345,
+      "type": "movie",
+      "title": "Test Movie",
+      "description": "Film de test pour Cypress"
+    },
+    {
+      "id": 67890,
+      "type": "movie", 
+      "title": "Another Test Movie",
+      "description": "Autre film de test"
+    }
+  ],
+  "series": [
+    {
+      "id": 11111,
+      "type": "tv",
+      "title": "Test Series",
+      "description": "Série de test pour Cypress"
+    },
+    {
+      "id": 22222,
+      "type": "tv",
+      "title": "Another Test Series", 
+      "description": "Autre série de test"
+    }
+  ],
+  "comments": [
+    {
+      "content": "Excellent film ! Test automatisé avec Cypress.",
+      "contentId": 12345,
+      "contentType": "movie"
+    },
+    {
+      "content": "Très bonne série, je recommande vivement !",
+      "contentId": 11111,
+      "contentType": "tv"
+    },
+    {
+      "content": "Commentaire de test pour vérifier les fonctionnalités.",
+      "contentId": 67890,
+      "contentType": "movie"
+    }
+  ],
+  "searchTerms": [
+    "Avengers",
+    "Star Wars",
+    "Marvel",
+    "Breaking Bad",
+    "Game of Thrones"
+  ]
+}
