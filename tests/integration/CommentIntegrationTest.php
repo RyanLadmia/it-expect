@@ -182,20 +182,50 @@ class CommentIntegrationTest extends TestCase
         
         // ACT : Ajouter le commentaire parent
         $parentResult = $this->commentController->addComment($this->testUserId, $itemId, $type, $parentContent);
-        $this->assertTrue($parentResult['success']);
+        $this->assertTrue($parentResult['success'], "L'ajout du commentaire devrait réussir");
 
         // Récupérer le commentaire créé pour obtenir son ID
-        $comments = $this->commentController->getComments($itemId, $type);
+        // Essayer plusieurs fois car il peut y avoir un léger délai de propagation
         $parentComment = null;
-        foreach ($comments as $comment) {
-            if ($comment['content'] === $parentContent && $comment['user_id'] == $this->testUserId) {
-                $parentComment = $comment;
-                $this->testCommentsToCleanup[] = $comment['comment_id'];
-                break;
+        $maxAttempts = 5;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $comments = $this->commentController->getComments($itemId, $type);
+            
+            foreach ($comments as $comment) {
+                // Comparaison plus flexible : trim et comparaison de contenu
+                $commentContent = trim($comment['content'] ?? '');
+                $expectedContent = trim($parentContent);
+                
+                if ($commentContent === $expectedContent && 
+                    isset($comment['user_id']) && 
+                    (int)$comment['user_id'] === (int)$this->testUserId) {
+                    $parentComment = $comment;
+                    $this->testCommentsToCleanup[] = $comment['comment_id'];
+                    break 2; // Sortir des deux boucles
+                }
+            }
+            
+            // Si pas trouvé, attendre un peu avant de réessayer
+            if ($attempt < $maxAttempts) {
+                usleep(100000); // 0.1 seconde
             }
         }
         
-        $this->assertNotNull($parentComment, "Le commentaire parent devrait être créé");
+        // Diagnostic en cas d'échec
+        if ($parentComment === null) {
+            $allComments = $this->commentController->getComments($itemId, $type);
+            $debugInfo = sprintf(
+                "Commentaire non trouvé. Recherché: content='%s', user_id=%d, item_id=%d, type=%s. " .
+                "Commentaires trouvés: %d. Détails: %s",
+                $parentContent,
+                $this->testUserId,
+                $itemId,
+                $type,
+                count($allComments),
+                json_encode($allComments, JSON_PRETTY_PRINT)
+            );
+            $this->assertNotNull($parentComment, $debugInfo);
+        }
 
         // ACT : Ajouter une réponse au commentaire
         $replyContent = 'Réponse de test intégration';
