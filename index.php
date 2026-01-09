@@ -3,7 +3,7 @@ include_once 'config/config.php';
 
 myAutoload::start();
 
-// Get the road (param 'r' in URL) TEST
+// Get the road (param 'r' in URL) TEST CI/CD Valide
 $request = $_GET['r'] ?? 'home';  // home.php?r...
 
 $routeur = new Routeur($request);
