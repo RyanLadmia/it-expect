@@ -8,7 +8,7 @@ class Connection
     {
         // Charger les variables d'environnement
         require_once 'vendor/autoload.php';
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../')
         $dotenv->load();
 
         $db_host = $_ENV['DB_HOST'];

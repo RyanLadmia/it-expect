@@ -4,7 +4,7 @@ class myAutoload
 {
     public static function start ()
     {
-        spl_autoload_register([__CLASS__, 'autoload'])
+        spl_autoload_register([__CLASS__, 'autoload']);
 
         $root = $_SERVER['DOCUMENT_ROOT'];
         $host = $_SERVER['HTTP_HOST'];

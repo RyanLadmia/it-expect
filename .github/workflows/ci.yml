@@ -59,23 +59,23 @@ jobs:
 
       - name: PHP syntax check
         run: |
+          set +e
+        
           error_count=0
           echo "Checking PHP syntax..."
-
+        
           while IFS= read -r -d '' file; do
             output=$(php -l "$file" 2>&1)
             exit_code=$?
-
+        
             if [ $exit_code -ne 0 ]; then
-              echo "ERROR ::error file=$file::$output"
-              echo "$output"
+              echo "::error file=$file::$output"
               error_count=$((error_count + 1))
             fi
-          done < <(find . -name "*.php" -type f -print0)
-
+          done < <(find . -type f -name "*.php" ! -path "./vendor/*" -print0)
+        
           if [ $error_count -gt 0 ]; then
-            echo ""
-            echo "Found $error_count PHP syntax error(s). Please fix them before merging."
+            echo "Found $error_count PHP syntax error(s)."
             exit 1
           else
             echo "All PHP files have valid syntax."
