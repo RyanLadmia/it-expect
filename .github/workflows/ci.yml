@@ -66,7 +66,7 @@ jobs:
           extensions: pdo, pdo_mysql, mbstring
 
       - name: PHP syntax check
-        # Lancement de la vérification sans arrêter le script sur la première erreur
+        # Lancement de la vérification sans arrêter le script en cas d'erreur(s)
         run: |
           set +e
         
