@@ -1,5 +1,7 @@
+# Nom du workflow
 name: CI
 
+# Déclencheurs du workflow (ici en cas de push ou pull request sur main)
 on: 
   pull_request:
     branches:
@@ -8,14 +10,19 @@ on:
     branches:
       - main
 
+# Permissions necéssaires pour le workflow (ici lecture su code seuement)
 permissions:
   contents: read
 
+# Bloc de vérification
 jobs:
   tests:
+    # Nom du bloc
     name: Full tests
+    # Lancement sur VM Ubuntu récente
     runs-on: ubuntu-latest
 
+    # Services nécessaires pour le job
     services:
       mysql:
         image: mysql:8.0
@@ -32,6 +39,7 @@ jobs:
           --health-timeout=5s
           --health-retries=3
 
+    # Etape 1 : Récupération du code
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -58,26 +66,32 @@ jobs:
           extensions: pdo, pdo_mysql, mbstring
 
       - name: PHP syntax check
+        # Lancement de la vérification sans arrêter le script sur la première erreur
         run: |
           set +e
         
           error_count=0
           echo "Checking PHP syntax..."
         
+          # Boucle sur tous les fichiers .php
           while IFS= read -r -d '' file; do
+            # Vérifie la syntaxe
             output=$(php -l "$file" 2>&1)
             exit_code=$?
         
             if [ $exit_code -ne 0 ]; then
+              # Affiche l'erreur dans GitHub Action
               echo "::error file=$file::$output"
               error_count=$((error_count + 1))
             fi
           done < <(find . -type f -name "*.php" ! -path "./vendor/*" -print0)
         
+          # Arrête le job si des erreurs sont trouvées
           if [ $error_count -gt 0 ]; then
             echo "Found $error_count PHP syntax error(s)."
             exit 1
           else
+            # Si aucune erreur n'est trouvée
             echo "All PHP files have valid syntax."
           fi
 
