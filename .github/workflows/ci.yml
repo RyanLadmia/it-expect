@@ -61,15 +61,18 @@ jobs:
         run: |
           error_count=0
           echo "Checking PHP syntax..."
+
           while IFS= read -r -d '' file; do
             output=$(php -l "$file" 2>&1)
             exit_code=$?
+
             if [ $exit_code -ne 0 ]; then
-              echo "ERROR in $file:"
+              echo "ERROR ::error file=$file::$output"
               echo "$output"
               error_count=$((error_count + 1))
             fi
           done < <(find . -name "*.php" -type f -print0)
+
           if [ $error_count -gt 0 ]; then
             echo ""
             echo "Found $error_count PHP syntax error(s). Please fix them before merging."
