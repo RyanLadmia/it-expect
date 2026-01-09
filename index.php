@@ -6,6 +6,6 @@ myAutoload::start();
 // Get the road (param 'r' in URL) TEST
 $request = $_GET['r'] ?? 'home';  // home.php?r...
 
-$routeur = new Routeur($request);
+$routeur = new Routeur($request)
 $routeur->renderController();
 ?> 
