@@ -75,11 +75,7 @@ class ModelFavorite {
                 throw new InvalidArgumentException("Paramètres invalides pour la suppression");
             }
 
-            // Vérifier si le favori existe
-            if (!$this->favoriteExists($userId, $contentId, $contentType)) {
-                throw new Exception("Ce favori n'existe pas");
-            }
-
+            // Supprimer le favori (idempotent : si le favori n'existe pas, la suppression est considérée comme réussie)
             $query = "DELETE FROM favorites WHERE user_id = :user_id AND content_id = :content_id AND content_type = :content_type";
             $stmt = $this->connexion->prepare($query);
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
@@ -90,6 +86,8 @@ class ModelFavorite {
                 throw new Exception("Échec de la suppression du favori");
             }
             
+            // La suppression est toujours considérée comme réussie, même si le favori n'existait pas
+            // Cela évite les erreurs en cas de double-clic ou de requête simultanée
             return true;
         } catch (PDOException $e) {
             throw new Exception("Erreur lors de la suppression du favori : " . $e->getMessage());

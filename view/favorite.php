@@ -65,11 +65,19 @@ $message = $pageData['message'];
         const confirmBtns = document.querySelectorAll('.confirm-remove');
         
         confirmBtns.forEach(btn => {
+            let isProcessing = false;
             btn.addEventListener('click', function() {
+                if (isProcessing) {
+                    return; // Ignorer si déjà en cours de traitement
+                }
+                isProcessing = true;
+                this.disabled = true;
+                
                 const favItem = this.closest('.favorite-item');
                 const contentId = favItem.dataset.contentId;
                 const contentType = favItem.dataset.contentType;
-                const successMsg = this.closest('.confirmation-message').querySelector('.success-message');
+                const confirmationMsg = this.closest('.confirmation-message');
+                const successMsg = confirmationMsg.querySelector('.success-message');
                 
                 // Requête AJAX pour supprimer le favori
                 fetch(window.location.href, {
@@ -83,11 +91,16 @@ $message = $pageData['message'];
                 .then(data => {
                     if (data.success) {
                         // Afficher le message de succès
-                        successMsg.style.display = 'block';
+                        if (successMsg) {
+                            successMsg.style.display = 'block';
+                        }
                         
                         // Masquer les boutons
                         this.style.display = 'none';
-                        this.nextElementSibling.style.display = 'none';
+                        const cancelBtn = this.nextElementSibling;
+                        if (cancelBtn && cancelBtn.classList.contains('cancel-remove')) {
+                            cancelBtn.style.display = 'none';
+                        }
                         
                         // Retirer l'élément après un délai
                         setTimeout(() => {
@@ -100,17 +113,49 @@ $message = $pageData['message'];
                                 
                                 // Si plus aucun favori, afficher le message
                                 if (document.querySelectorAll('.favorite-item').length === 0) {
-                                    const noFavorite = document.createElement('p');
-                                    noFavorite.className = 'no_favorite';
-                                    noFavorite.textContent = 'Vous n\'avez pas encore de favoris.';
-                                    document.querySelector('#favoritesList').replaceWith(noFavorite);
+                                    const favoritesList = document.querySelector('#favoritesList');
+                                    if (favoritesList) {
+                                        const noFavorite = document.createElement('p');
+                                        noFavorite.className = 'no_favorite';
+                                        noFavorite.textContent = 'Vous n\'avez pas encore de favoris.';
+                                        favoritesList.replaceWith(noFavorite);
+                                    }
                                 }
                             }, 500);
                         }, 1500);
+                    } else {
+                        // Afficher l'erreur dans le message de confirmation au lieu d'une modale
+                        const errorMsg = document.createElement('p');
+                        errorMsg.className = 'error-message';
+                        errorMsg.style.color = '#f44336';
+                        errorMsg.textContent = data.message || 'Une erreur est survenue.';
+                        confirmationMsg.appendChild(errorMsg);
+                        
+                        // Réactiver le bouton après 3 secondes
+                        setTimeout(() => {
+                            isProcessing = false;
+                            this.disabled = false;
+                            if (errorMsg.parentNode) {
+                                errorMsg.remove();
+                            }
+                        }, 3000);
                     }
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
+                    const errorMsg = document.createElement('p');
+                    errorMsg.className = 'error-message';
+                    errorMsg.style.color = '#f44336';
+                    errorMsg.textContent = 'Erreur de communication avec le serveur.';
+                    confirmationMsg.appendChild(errorMsg);
+                    
+                    setTimeout(() => {
+                        isProcessing = false;
+                        this.disabled = false;
+                        if (errorMsg.parentNode) {
+                            errorMsg.remove();
+                        }
+                    }, 3000);
                 });
             });
         });

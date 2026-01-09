@@ -117,7 +117,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     // Si "Oui" est cliqué, supprimer le favori
-                    item.querySelector('.confirm-remove').addEventListener('click', function() {
+                    const confirmBtn = item.querySelector('.confirm-remove');
+                    // Empêcher les doubles clics
+                    let isProcessing = false;
+                    confirmBtn.addEventListener('click', function() {
+                        if (isProcessing) {
+                            return; // Ignorer si déjà en cours de traitement
+                        }
+                        isProcessing = true;
+                        confirmBtn.disabled = true;
+                        
                         // Envoi de la requête AJAX pour supprimer le favori
                         const contentId = item.getAttribute('data-content-id');
                         const contentType = item.getAttribute('data-content-type');
@@ -131,21 +140,85 @@ document.addEventListener('DOMContentLoaded', function() {
                                     try {
                                         const response = JSON.parse(xhr.responseText);
                                         if (response.success) {
-                                            confirmationMessage.querySelector('.success-message').style.display = 'block';
+                                            // Afficher le message de succès
+                                            const successMsg = confirmationMessage.querySelector('.success-message');
+                                            if (successMsg) {
+                                                successMsg.style.display = 'block';
+                                            }
+                                            
+                                            // Masquer les boutons de confirmation
+                                            const cancelBtn = item.querySelector('.cancel-remove');
+                                            if (cancelBtn) cancelBtn.style.display = 'none';
+                                            confirmBtn.style.display = 'none';
+                                            
+                                            // Retirer l'élément après un délai
                                             setTimeout(() => {
-                                                item.style.display = 'none';
-                                            }, 2000);
+                                                item.style.opacity = '0';
+                                                item.style.transition = 'opacity 0.5s ease';
+                                                setTimeout(() => {
+                                                    item.remove();
+                                                    
+                                                    // Si plus aucun favori, afficher le message
+                                                    if (document.querySelectorAll('.favorite-item').length === 0) {
+                                                        const favoritesList = document.querySelector('#favoritesList');
+                                                        if (favoritesList) {
+                                                            const noFavorite = document.createElement('p');
+                                                            noFavorite.className = 'no_favorite';
+                                                            noFavorite.textContent = 'Vous n\'avez pas encore de favoris.';
+                                                            favoritesList.replaceWith(noFavorite);
+                                                        }
+                                                    }
+                                                }, 500);
+                                            }, 1500);
                                         } else {
+                                            // Afficher l'erreur dans le message de confirmation au lieu d'une modale
                                             console.error('Erreur serveur:', response);
-                                            alert(`Erreur: ${response.message || 'Une erreur est survenue.'}`);
+                                            const errorMsg = document.createElement('p');
+                                            errorMsg.className = 'error-message';
+                                            errorMsg.style.color = '#f44336';
+                                            errorMsg.textContent = response.message || 'Une erreur est survenue.';
+                                            confirmationMessage.appendChild(errorMsg);
+                                            
+                                            // Réactiver le bouton après 3 secondes
+                                            setTimeout(() => {
+                                                isProcessing = false;
+                                                confirmBtn.disabled = false;
+                                                if (errorMsg.parentNode) {
+                                                    errorMsg.remove();
+                                                }
+                                            }, 3000);
                                         }
                                     } catch (e) {
                                         console.error('Erreur parsing JSON:', e, 'Response:', xhr.responseText);
-                                        alert("Erreur de communication avec le serveur.");
+                                        const errorMsg = document.createElement('p');
+                                        errorMsg.className = 'error-message';
+                                        errorMsg.style.color = '#f44336';
+                                        errorMsg.textContent = 'Erreur de communication avec le serveur.';
+                                        confirmationMessage.appendChild(errorMsg);
+                                        
+                                        setTimeout(() => {
+                                            isProcessing = false;
+                                            confirmBtn.disabled = false;
+                                            if (errorMsg.parentNode) {
+                                                errorMsg.remove();
+                                            }
+                                        }, 3000);
                                     }
                                 } else {
                                     console.error('Erreur HTTP:', xhr.status, xhr.statusText, xhr.responseText);
-                                    alert(`Erreur HTTP ${xhr.status}: ${xhr.statusText}`);
+                                    const errorMsg = document.createElement('p');
+                                    errorMsg.className = 'error-message';
+                                    errorMsg.style.color = '#f44336';
+                                    errorMsg.textContent = `Erreur HTTP ${xhr.status}: ${xhr.statusText}`;
+                                    confirmationMessage.appendChild(errorMsg);
+                                    
+                                    setTimeout(() => {
+                                        isProcessing = false;
+                                        confirmBtn.disabled = false;
+                                        if (errorMsg.parentNode) {
+                                            errorMsg.remove();
+                                        }
+                                    }, 3000);
                                 }
                             }
                         };
